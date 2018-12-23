@@ -3,11 +3,11 @@
   <h1>
     Welcome to VSlack-moji!
   </h1>
-  <ng-container *ngIf="slackEmojies$ | async as slackEmojies">
-    <ng-container *ngIf="customEmojies$ | async as customEmojies">
-      <input matInput placeholder="Search by emoji" [formControl]="emojiControl">
-      <img class="imageSize" src="{{customEmojies[emojiControl.value]}}">
-      <div class="imageSize">{{slackEmojies[emojiControl.value]}}</div>
+    <ng-container *ngIf="slackEmojies$ | async as slackEmojies">
+      <ng-container *ngIf="customEmojies$ | async as customEmojies">
+        <input matInput placeholder="Search by emoji" [formControl]="emojiControl">
+        <img class="imageSize" src="{{slackEmojies[emojiControl.value]}}">
+        <div class="imageSize">{{customEmojies[emojiControl.value]}}</div>
     </ng-container>
   </ng-container>
 </div>
