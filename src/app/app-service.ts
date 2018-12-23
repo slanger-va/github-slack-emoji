@@ -2,7 +2,6 @@ import {HttpClient} from "@angular/common/http";
 import {map, shareReplay} from "rxjs/operators";
 import {Observable} from "rxjs";
 import {Injectable} from "@angular/core";
-import {slackToken} from "../../creds";
 
 export interface EmojieMap {
   [shortnames: string]: string;
@@ -34,6 +33,8 @@ export class AppService {
 
 
   getSlackEmojis(): Observable<EmojieMap> {
+    const slackToken = sessionStorage.getItem('slackToken');
+    // console.log(slackToken);
     return this.http.get('https://slack.com/api/emoji.list?token='+ slackToken).pipe(map(
     ((result: any) => {
       if (result) {

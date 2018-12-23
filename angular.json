@@ -26,7 +26,9 @@
               "src/favicon.ico",
               "src/assets",
               "src/manifest.json",
-              "src/content.js"
+              "src/background.js",
+              "src/content.js",
+              "src/popup.js"
             ],
             "styles": [
               "src/styles.scss"
