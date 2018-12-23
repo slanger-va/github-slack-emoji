@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import {AppService, EmojieMap} from "./app-service";
 import {Observable} from "rxjs";
 import {FormControl} from "@angular/forms";
-import {element} from "protractor";
 
 @Component({
   selector: 'app-root',
