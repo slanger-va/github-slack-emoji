@@ -1,3 +1,8 @@
+import * as creds from "../creds";
+
+var size = 16;
+const emojiMap = new Map();
+
 document.addEventListener("keydown", keyDownTextField, false);
 var textareas = document.getElementsByName('pull_request[body]');
 
@@ -10,10 +15,9 @@ function keyDownTextField(e) {
 }
 
 const Http = new XMLHttpRequest();
-const url='https://slack.com/api/emoji.list?token=xoxp-2359480181-177823687271-288633477749-5803d20640ca6d86cfda465b76aeaf44';
+const url='https://slack.com/api/emoji.list?token=' + creds.token;
 Http.open("GET", url);
 Http.send();
-const emojiMap = new Map();
 Http.onreadystatechange=(e)=> {
   if (!Http.responseText) {return}
   const text = JSON.parse(Http.responseText);
@@ -30,9 +34,16 @@ Http.onreadystatechange=(e)=> {
 function convertString(v) {
   if (emojiMap && emojiMap != null) {
     if (v) {
-      emojiStrings = v.match(':.*:');
-      for (var i = 0; i < emojiStrings.length; i++) {
-        v = v.replace(emojiStrings[i], emojiMap[emojiStrings[i]]);
+      var emojiStrings = v.match(':.*:');
+      if (emojiStrings) {
+        for (var i = 0; i < emojiStrings.length; i++) {
+          var str = emojiStrings[i].replace(/:/g, '');
+          if (emojiMap.get(str)) {
+
+            var slackImageString = '<img src='+ emojiMap.get(str)+ ' height='+size+'>';
+            v = v.replace(emojiStrings[i], slackImageString);
+          }
+        }
       }
     }
   }

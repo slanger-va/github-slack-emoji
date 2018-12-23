@@ -13,7 +13,6 @@ __webpack_require__.r(__webpack_exports__);
 var token = "xoxp-2359480181-177823687271-288633477749-5803d20640ca6d86cfda465b76aeaf44";
 
 
-
 /***/ }),
 
 /***/ "./src/$$_lazy_route_resource lazy recursive":
@@ -110,7 +109,6 @@ var AppService = /** @class */ (function () {
         this.slackEmojies = this.getSlackEmojis();
     }
     AppService.prototype.getSlackEmojis = function () {
-        console.log('getslack');
         return this.http.get('./assets/emoji.json').pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_1__["map"])((function (result) {
             if (result) {
                 var emojiMap_1 = {};
@@ -124,7 +122,6 @@ var AppService = /** @class */ (function () {
         })), Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_1__["shareReplay"])(1));
     };
     AppService.prototype.getCustomeEmojies = function () {
-        console.log('getcustom');
         return this.http.get('https://slack.com/api/emoji.list?token=' + _creds__WEBPACK_IMPORTED_MODULE_3__["token"]).pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_1__["map"])((function (result) {
             if (result) {
                 var emoji = result.emoji;
@@ -211,14 +208,13 @@ var AppComponent = /** @class */ (function () {
             img[0].style.setProperty('$imageSize', this.fontSize + 'px');
         }
     }
-    var _a;
     AppComponent = __decorate([
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Component"])({
             selector: 'app-root',
             template: __webpack_require__(/*! ./app.component.html */ "./src/app/app.component.html"),
             styles: [__webpack_require__(/*! ./app.component.scss */ "./src/app/app.component.scss")]
         }),
-        __metadata("design:paramtypes", [typeof (_a = typeof _app_service__WEBPACK_IMPORTED_MODULE_1__["AppService"] !== "undefined" && _app_service__WEBPACK_IMPORTED_MODULE_1__["AppService"]) === "function" ? _a : Object])
+        __metadata("design:paramtypes", [_app_service__WEBPACK_IMPORTED_MODULE_1__["AppService"]])
     ], AppComponent);
     return AppComponent;
 }());

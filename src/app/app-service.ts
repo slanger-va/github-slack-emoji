@@ -17,7 +17,6 @@ export class AppService {
   }
 
   getSlackEmojis(): Observable<EmojieMap> {
-    console.log('getslack');
     return this.http.get('./assets/emoji.json').pipe(map(
       ((result: any) => {
         if (result) {
@@ -35,7 +34,6 @@ export class AppService {
 
 
   getCustomeEmojies(): Observable<EmojieMap> {
-    console.log('getcustom');
     return this.http.get('https://slack.com/api/emoji.list?token='+ token).pipe(map(
     ((result: any) => {
       if (result) {
