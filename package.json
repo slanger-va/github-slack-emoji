@@ -1,26 +1,33 @@
 {
   "name": "slack-extension",
   "version": "0.0.0",
+  "watch": {
+    "test": "{src,test}/*.js"
+  },
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
     "test": "ng test",
     "lint": "ng lint",
-    "e2e": "ng e2e"
+    "e2e": "ng e2e",
+    "build-watch": "npm-watch build"
   },
   "private": true,
   "dependencies": {
     "@angular/animations": "~7.0.0",
+    "@angular/cdk": "^7.2.0",
     "@angular/common": "~7.0.0",
     "@angular/compiler": "~7.0.0",
     "@angular/core": "~7.0.0",
     "@angular/forms": "~7.0.0",
     "@angular/http": "~7.0.0",
+    "@angular/material": "^7.2.0",
     "@angular/platform-browser": "~7.0.0",
     "@angular/platform-browser-dynamic": "~7.0.0",
     "@angular/router": "~7.0.0",
     "core-js": "^2.5.4",
+    "npm-watch": "^0.5.0",
     "rxjs": "~6.3.3",
     "zone.js": "~0.8.26"
   },
