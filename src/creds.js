@@ -1,6 +1,6 @@
 var clientId = '510178099568.512316531926';
 var clientSecret = '8a1710814109dee548c21f6022a480c9';
-var redirectUri = 'https://lakpdipnnecpedbhjbkkapobefcgniic.chromiumapp.org';
+var redirectUri = 'https://'+chrome.runtime.id+'.chromiumapp.org';
 var scope = 'emoji:read';
 var fontSize = 28;
 
