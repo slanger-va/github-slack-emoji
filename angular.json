@@ -28,7 +28,8 @@
               "src/manifest.json",
               "src/background.js",
               "src/content.js",
-              "src/popup.js"
+              "src/popup.js",
+              "src/creds.js"
             ],
             "styles": [
               "src/styles.scss"

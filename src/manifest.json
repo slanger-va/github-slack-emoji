@@ -8,7 +8,7 @@
     "default_popup": "index.html"
   },
   "background": {
-    "scripts": ["background.js"],
+    "scripts": ["creds.js", "background.js"],
     "persistent": true
   },
   "content_scripts": [
@@ -23,7 +23,7 @@
       "run_at": "document_end"
     }
   ],
-  "permissions": ["storage", "unlimitedStorage"],
+  "permissions": ["storage", "unlimitedStorage", "identity"],
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
   "web_accessible_resources": [
     "assets/css/*",

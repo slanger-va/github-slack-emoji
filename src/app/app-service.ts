@@ -6,6 +6,7 @@ import {Injectable} from "@angular/core";
 export interface EmojieMap {
   [shortnames: string]: string;
 }
+
 @Injectable()
 export class AppService {
   customEmojies: Observable<EmojieMap>;
@@ -34,7 +35,6 @@ export class AppService {
 
   getSlackEmojis(): Observable<EmojieMap> {
     const slackToken = sessionStorage.getItem('slackToken');
-    // console.log(slackToken);
     return this.http.get('https://slack.com/api/emoji.list?token='+ slackToken).pipe(map(
     ((result: any) => {
       if (result) {

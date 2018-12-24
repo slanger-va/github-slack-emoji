@@ -24,21 +24,7 @@ Http.onreadystatechange=(e)=> {
     }
     emojiMap.set(key, emoji[key]);
   }
-  // setCookie()
 };
-
-// function setCookie(){
-//   chrome.extension.sendMessage({name: 'setLoginCookie'}, function(otherResponse) {
-//     console.log(otherResponse)
-//   })
-// }
-
-// function getCookie(){
-//   chrome.extension.sendMessage({name: 'getLoginCookie'}, function(response) {
-//     console.log(response);
-//     alert(response)
-//   })
-// }
 
 function convertString(v) {
   if (emojiMap && emojiMap != null) {
