@@ -29,7 +29,9 @@
               "src/background.js",
               "src/content.js",
               "src/popup.js",
-              "src/creds.js"
+              "src/creds.js",
+              "src/options.js",
+              "src/options.html"
             ],
             "styles": [
               "src/styles.scss"

@@ -35,6 +35,13 @@ chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
     })
   }
 
+  if(request.name === 'CLEAR_STATE'){
+    chrome.storage.sync.remove('slackToken');
+    sessionStorage.removeItem('slackToken');
+    localStorage.removeItem('slackToken');
+    sendResponse({ok: true});
+  }
+
   return true;
 });
 

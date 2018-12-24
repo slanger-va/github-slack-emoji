@@ -1,3 +1,10 @@
+chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
+  if (request.name === 'CLEAR_STATE') {
+    sessionStorage.removeItem('slackToken');
+    localStorage.removeItem('slackToken');
+  }
+});
+
 function setCookie(){
   chrome.extension.sendMessage({name: 'setLoginCookie'}, function(otherResponse) {})
 }
@@ -8,7 +15,9 @@ function getCookie(){
       sessionStorage.setItem('slackToken', response['slackToken'])
     } else {
       let tk = authenticateTeam();
-      sessionStorage.setItem('slackToken', tk['slackToken'])
+      if(tk) {
+        sessionStorage.setItem('slackToken', tk['slackToken'])
+      }
     }
   })
 }

@@ -1,6 +1,6 @@
 {
   "manifest_version": 2,
-  "name": "git-moji",
+  "name": "Slack-moji",
   "description": "Use custom slack emoji in github",
   "version": "1.0",
   "browser_action": {
@@ -23,6 +23,7 @@
       "run_at": "document_end"
     }
   ],
+  "options_page": "options.html",
   "permissions": ["storage", "unlimitedStorage", "identity"],
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
   "web_accessible_resources": [
