@@ -1,4 +1,6 @@
 var textareas = document.getElementsByName('pull_request[body]');
+var commentareas = document.getElementsByName('comment[body]');
+var issueareas = document.getElementsByName('issue_comment[body]');
 document.addEventListener("keydown", keyDownTextField, false);
 
 
@@ -19,9 +21,11 @@ function getFontSize(){
 }
 
 function keyDownTextField(e) {
-  for (var i = 0, l = textareas.length; i < l; i++) {
-    if (textareas[i].value) {
-      textareas[i].value = convertString(textareas[i].value);
+  allArray = textareas.concat(commentareas);
+  allArray = allArray.concat(issueareas);
+  for (var i = 0, l = allArray.length; i < l; i++) {
+    if (allArray[i].value) {
+      allArray[i].value = convertString(allArray[i].value);
     }
   }
 }

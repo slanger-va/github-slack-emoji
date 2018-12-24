@@ -1,6 +1,6 @@
 import {HttpClient} from "@angular/common/http";
 import {map, shareReplay} from "rxjs/operators";
-import {combineLatest, Observable} from "rxjs";
+import {Observable} from "rxjs";
 import {Injectable} from "@angular/core";
 
 export interface EmojieMap {
