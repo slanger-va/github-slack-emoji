@@ -21,11 +21,19 @@ function getFontSize(){
 }
 
 function keyDownTextField(e) {
-  allArray = textareas.concat(commentareas);
-  allArray = allArray.concat(issueareas);
-  for (var i = 0, l = allArray.length; i < l; i++) {
-    if (allArray[i].value) {
-      allArray[i].value = convertString(allArray[i].value);
+  for (var i = 0, l = textareas.length; i < l; i++) {
+    if (textareas[i].value) {
+      textareas[i].value = convertString(textareas[i].value);
+    }
+  }
+  for (var i = 0, l = commentareas.length; i < l; i++) {
+    if (commentareas[i].value) {
+      commentareas[i].value = convertString(commentareas[i].value);
+    }
+  }
+  for (var i = 0, l = issueareas.length; i < l; i++) {
+    if (issueareas[i].value) {
+      issueareas[i].value = convertString(issueareas[i].value);
     }
   }
 }
@@ -55,12 +63,16 @@ function convertString(v) {
         for (var i = 0; i < emojiStrings.length; i++) {
           emoji = emojiStrings[i];
           while( emoji.includes(':')) {
+            firstIndex = emoji.indexOf(':');
+            newemoji = emoji.replace(':', '');
+            secondIndex = newemoji.indexOf(':');
+            newemoji = newemoji.substring(firstIndex,secondIndex);
+            slackEmoji = emojiMap.get(newemoji);
+            if (slackEmoji) {
+              imageString = '<img src="'+slackEmoji+'" height="'+localStorage.getItem('fontSize')+'">';
+              v = v.replace(':'+newemoji+':', imageString);
+            }
             emoji = emoji.replace(':', '');
-          }
-          slackEmoji = emojiMap.get(emoji);
-          if (slackEmoji) {
-            imageString = '<img src="'+slackEmoji+'" height="'+localStorage.getItem('fontSize')+'">';
-            v = v.replace(emojiStrings[i], imageString);
           }
         }
       }

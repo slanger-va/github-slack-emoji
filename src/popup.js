@@ -26,6 +26,7 @@ function getCookie(){
       if(tk) {
         localStorage.setItem('slackToken', tk['slackToken'])
       }
+      window.close();
     }
   })
 }
