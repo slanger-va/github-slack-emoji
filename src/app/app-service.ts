@@ -50,7 +50,6 @@ export class AppService {
   //             emojiMap[r['short_names'][i]] = r['unified'];
   //           }
   //         });
-  //         console.log(emojiMap);
   //         return emojiMap;
   //       }
   //     })),
