@@ -31,7 +31,11 @@
               "src/popup.js",
               "src/creds.js",
               "src/options.js",
-              "src/options.html"
+              "src/options.html",
+              "src/slack-moji-128.png",
+              "src/slack-moji-48.png",
+              "src/slack-moji-32.png",
+              "src/slack-moji-16.png"
             ],
             "styles": [
               "src/styles.scss"

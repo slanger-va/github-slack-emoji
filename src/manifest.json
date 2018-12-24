@@ -30,5 +30,11 @@
     "assets/css/*",
     "assets/js/*",
     "assets/fonts/*"
-  ]
+  ],
+  "icons": {
+    "16": "slack-moji-16.png",
+    "32": "slack-moji-32.png",
+    "48": "slack-moji-48.png",
+    "128": "slack-moji-128.png"
+  }
 }
