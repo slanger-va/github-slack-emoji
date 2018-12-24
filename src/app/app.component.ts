@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import {Component, ElementRef} from '@angular/core';
 import {AppService, EmojieMap} from "./app-service";
-import {Observable} from "rxjs";
+import {combineLatest, Observable} from "rxjs";
 import {FormControl} from "@angular/forms";
+import {map} from "rxjs/operators";
 
 @Component({
   selector: 'app-root',
@@ -9,18 +10,14 @@ import {FormControl} from "@angular/forms";
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  fontSize: number  = 14;
+  fontSize: number;
   slackEmojies$: Observable<EmojieMap>;
-  customEmojies$: Observable<EmojieMap>;
   emojiControl: FormControl = new FormControl();
 
-  constructor(appService: AppService) {
+  constructor(appService: AppService, private elementRef: ElementRef) {
     this.slackEmojies$ = appService.slackEmojies;
-    this.customEmojies$ = appService.customEmojies;
-    const img = document.querySelector('img');
-    if(img) {
-      img[0].style.setProperty('$imageSize', this.fontSize + 'px')
-    }
+    this.fontSize = appService.getFontSize();
+    if (!this.fontSize) {this.fontSize = 25}
+    this.elementRef.nativeElement.style.setProperty('--fontsize', this.fontSize + 'px');
   }
-
 }

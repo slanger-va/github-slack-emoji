@@ -7,7 +7,7 @@ function getCookie(){
     if( response['slackToken']) {
       sessionStorage.setItem('slackToken', response['slackToken'])
     } else {
-      let tk = authenticateTeam()
+      let tk = authenticateTeam();
       sessionStorage.setItem('slackToken', tk['slackToken'])
     }
   })

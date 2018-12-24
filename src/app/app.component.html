@@ -1,14 +1,14 @@
 <!--The content below is only a placeholder and can be replaced.-->
-<div style="text-align:center">
+<div style="text-align:center; width: 200px">
   <h1>
-    Welcome to VSlack-moji!
+    Welcome to Slack-moji!
   </h1>
     <ng-container *ngIf="slackEmojies$ | async as slackEmojies">
-      <ng-container *ngIf="customEmojies$ | async as customEmojies">
         <input matInput placeholder="Search by emoji" [formControl]="emojiControl">
+        <br>
+      <ng-container *ngIf="slackEmojies[emojiControl.value]">
         <img class="imageSize" src="{{slackEmojies[emojiControl.value]}}">
-        <div class="imageSize">{{customEmojies[emojiControl.value]}}</div>
-    </ng-container>
+      </ng-container>
   </ng-container>
 </div>
 

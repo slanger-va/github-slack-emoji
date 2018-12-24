@@ -1,8 +1,6 @@
-$imageSize: 14px;
-
-
+//$imageSize: undefined;
 
 .imageSize {
-  width: $imageSize;
-  height: $imageSize;
+  width: var(--fontsize);
+  height: var(--fontsize);
 }

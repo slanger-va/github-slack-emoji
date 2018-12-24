@@ -1,6 +1,6 @@
 import {HttpClient} from "@angular/common/http";
 import {map, shareReplay} from "rxjs/operators";
-import {Observable} from "rxjs";
+import {combineLatest, Observable} from "rxjs";
 import {Injectable} from "@angular/core";
 
 export interface EmojieMap {
@@ -9,14 +9,34 @@ export interface EmojieMap {
 
 @Injectable()
 export class AppService {
-  customEmojies: Observable<EmojieMap>;
   slackEmojies: Observable<EmojieMap>;
   constructor(private http: HttpClient) {
-    this.customEmojies = this.getCustomeEmojies();
     this.slackEmojies = this.getSlackEmojis();
   }
 
-  getCustomeEmojies(): Observable<EmojieMap> {
+  getSlackEmojis(): Observable<EmojieMap> {
+    const slackToken = sessionStorage.getItem('slackToken');
+    return this.http.get('https://slack.com/api/emoji.list?token='+ slackToken).pipe(map(
+      ((result: any) => {
+        if (result) {
+          const emoji = result.emoji;
+          const paesMap: {[key: string]: string} = {};
+          for(let key in emoji) {
+            if (key.includes('alias:')) {
+              key = key.replace('alias:', '');
+            }
+            paesMap[key] = emoji[key]
+          }
+          return paesMap;
+        } else {
+          return null;
+        }
+      })),
+      shareReplay(1));
+  }
+
+  //TODO later, this gets a list of unicode emoji
+  getStandardEmojis(): Observable<EmojieMap> {
     return this.http.get('./assets/emoji.json').pipe(map(
       ((result: any) => {
         if (result) {
@@ -26,31 +46,24 @@ export class AppService {
               emojiMap[r['short_names'][i]] = r['unified'];
             }
           });
+          console.log(emojiMap);
           return emojiMap;
         }
       })),
       shareReplay(1));
   }
 
+  getFontSize(): number {
+    return +sessionStorage.getItem('fontSize');
+  }
 
-  getSlackEmojis(): Observable<EmojieMap> {
-    const slackToken = sessionStorage.getItem('slackToken');
-    return this.http.get('https://slack.com/api/emoji.list?token='+ slackToken).pipe(map(
-    ((result: any) => {
-      if (result) {
-        const emoji = result.emoji;
-        const paesMap: {[key: string]: string} = {};
-        for(let key in emoji) {
-          if (key.includes('alias:')) {
-            key = key.replace('alias:', '');
-          }
-          paesMap[key] = emoji[key]
+  getAllEmojis(): Observable<EmojieMap> {
+    return combineLatest(this.getSlackEmojis(), this.getStandardEmojis()).pipe(
+      map(([slack, standard])=>{
+        for(let key in slack) {
+          standard[key] = slack[key];
         }
-        return paesMap;
-      } else {
-        return null;
-      }
-    })),
-      shareReplay(1));
+        return standard;
+      }));
   }
 }
