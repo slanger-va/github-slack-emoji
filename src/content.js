@@ -1,13 +1,19 @@
-document.addEventListener("keydown", keyDownTextField, false);
 var textareas = document.getElementsByName('pull_request[body]');
-var fontSize = 28;
+document.addEventListener("keydown", keyDownTextField, false);
+
 
 function getCookie(){
   chrome.extension.sendMessage({name: 'getLoginCookie'}, function(response) {
     if( response['slackToken']) {
-      sessionStorage.setItem('slackToken', response['slackToken'])
-    } else {
+      localStorage.setItem('slackToken', response['slackToken'])
+    }
+  })
+}
 
+function getFontSize(){
+  chrome.extension.sendMessage({name: 'getFontSize'}, function(response) {
+    if( response['fontSize']) {
+      localStorage.setItem('fontSize', response['fontSize'])
     }
   })
 }
@@ -21,7 +27,7 @@ function keyDownTextField(e) {
 }
 
 const Http = new XMLHttpRequest();
-const url='https://slack.com/api/emoji.list?token=' + sessionStorage.getItem('slackToken');
+const url='https://slack.com/api/emoji.list?token=' + localStorage.getItem('slackToken');
 Http.open("GET", url);
 Http.send();
 const emojiMap = new Map();
@@ -49,7 +55,7 @@ function convertString(v) {
           }
           slackEmoji = emojiMap.get(emoji);
           if (slackEmoji) {
-            imageString = '<img src="'+slackEmoji+'" height="'+fontSize+'">';
+            imageString = '<img src="'+slackEmoji+'" height="'+localStorage.getItem('fontSize')+'">';
             v = v.replace(emojiStrings[i], imageString);
           }
         }
@@ -60,5 +66,6 @@ function convertString(v) {
 }
 
 getCookie();
+getFontSize();
 
 

@@ -17,7 +17,7 @@ export class AppComponent {
   constructor(appService: AppService, private elementRef: ElementRef) {
     this.slackEmojies$ = appService.slackEmojies;
     this.fontSize = appService.getFontSize();
-    if (!this.fontSize) {this.fontSize = 25}
+    // if (!this.fontSize) {this.fontSize = 25}
     this.elementRef.nativeElement.style.setProperty('--fontsize', this.fontSize + 'px');
   }
 }

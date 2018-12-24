@@ -15,7 +15,7 @@ export class AppService {
   }
 
   getSlackEmojis(): Observable<EmojieMap> {
-    const slackToken = sessionStorage.getItem('slackToken');
+    const slackToken = localStorage.getItem('slackToken');
     return this.http.get('https://slack.com/api/emoji.list?token='+ slackToken).pipe(map(
       ((result: any) => {
         if (result) {
@@ -35,35 +35,25 @@ export class AppService {
       shareReplay(1));
   }
 
-  //TODO later, this gets a list of unicode emoji
-  getStandardEmojis(): Observable<EmojieMap> {
-    return this.http.get('./assets/emoji.json').pipe(map(
-      ((result: any) => {
-        if (result) {
-          const emojiMap: {[key: string]: string} = {};
-          result.map(r => {
-            for(let i = 0; i < r['short_names'].length; i++) {
-              emojiMap[r['short_names'][i]] = r['unified'];
-            }
-          });
-          console.log(emojiMap);
-          return emojiMap;
-        }
-      })),
-      shareReplay(1));
-  }
-
   getFontSize(): number {
-    return +sessionStorage.getItem('fontSize');
+    return +localStorage.getItem('fontSize');
   }
 
-  getAllEmojis(): Observable<EmojieMap> {
-    return combineLatest(this.getSlackEmojis(), this.getStandardEmojis()).pipe(
-      map(([slack, standard])=>{
-        for(let key in slack) {
-          standard[key] = slack[key];
-        }
-        return standard;
-      }));
-  }
+  // //TODO later, this gets a list of unicode emoji
+  // getStandardEmojis(): Observable<EmojieMap> {
+  //   return this.http.get('./assets/emoji.json').pipe(map(
+  //     ((result: any) => {
+  //       if (result) {
+  //         const emojiMap: {[key: string]: string} = {};
+  //         result.map(r => {
+  //           for(let i = 0; i < r['short_names'].length; i++) {
+  //             emojiMap[r['short_names'][i]] = r['unified'];
+  //           }
+  //         });
+  //         console.log(emojiMap);
+  //         return emojiMap;
+  //       }
+  //     })),
+  //     shareReplay(1));
+  // }
 }

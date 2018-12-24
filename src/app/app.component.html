@@ -6,6 +6,7 @@
     <ng-container *ngIf="slackEmojies$ | async as slackEmojies">
         <input matInput placeholder="Search by emoji" [formControl]="emojiControl">
         <br>
+        <br>
       <ng-container *ngIf="slackEmojies[emojiControl.value]">
         <img class="imageSize" src="{{slackEmojies[emojiControl.value]}}">
       </ng-container>

@@ -1,6 +1,7 @@
 chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
+  console.log(request);
   if (request.name === 'setLoginCookie') {
-    var obj = {slackToken: sessionStorage.getItem('slackToken')};
+    var obj = {slackToken: localStorage.getItem('slackToken')};
     chrome.storage.sync.set(obj, function() {});
   }
 
@@ -9,17 +10,17 @@ chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
       if (data['slackToken']) {
         sendResponse({slackToken: data['slackToken']});
       } else {
-        sendResponse({slackToken: sessionStorage.getItem('slackToken')});
+        sendResponse({slackToken: localStorage.getItem('slackToken')});
       }
     })
   }
 
   if (request.name === 'getSlackApi') {
     let slack = {
-        clientId: sessionStorage.getItem('clientId'),
-        clientSecret: sessionStorage.getItem('clientSecret'),
-        redirectUri: sessionStorage.getItem('redirectUri'),
-        scope: sessionStorage.getItem('scope'),
+        clientId: localStorage.getItem('clientId'),
+        clientSecret: localStorage.getItem('clientSecret'),
+        redirectUri: localStorage.getItem('redirectUri'),
+        scope: localStorage.getItem('scope'),
     };
     sendResponse({ slackApi: slack});
   }
@@ -30,26 +31,33 @@ chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
       if (data['slackToken']) {
         sendResponse({slackToken: data['slackToken']});
       } else {
-        sendResponse({slackToken: sessionStorage.getItem('slackToken')});
+        sendResponse({slackToken: localStorage.getItem('slackToken')});
       }
     })
   }
 
+  if (request.name === 'getFontSize') {
+    sendResponse({fontSize: localStorage.getItem('fontSize')});
+  }
+
   if(request.name === 'CLEAR_STATE'){
     chrome.storage.sync.remove('slackToken');
-    sessionStorage.removeItem('slackToken');
     localStorage.removeItem('slackToken');
+    localStorage.setItem('fontSize', 28);
     sendResponse({ok: true});
+  }
+
+  if(request.setFontSize) {
+
   }
 
   return true;
 });
 
-clientId = sessionStorage.getItem('clientId');
-clientSecret = sessionStorage.getItem('clientSecret');
-// redirectUri = chrome.identity.getRedirectURL();
-redirectUri = sessionStorage.getItem('redirectUri');
-scope = sessionStorage.getItem('scope');
+clientId = localStorage.getItem('clientId');
+clientSecret = localStorage.getItem('clientSecret');
+redirectUri = localStorage.getItem('redirectUri');
+scope = localStorage.getItem('scope');
 var AUTHORIZE_URL = 'https://slack.com/oauth/authorize';
 var ACCESS_URL = 'https://slack.com/api/oauth.access';
 
@@ -91,7 +99,7 @@ function authenticateTeam() {
             .catch(reject);
         })
       )).then(tk=> {
-        sessionStorage.setItem('slackToken', tk);
+        localStorage.setItem('slackToken', tk);
         chrome.storage.sync.set({'slackToken': tk}, function() {});
       });
     // yield put(teamActions.authenticated({ token }));
