@@ -2,11 +2,10 @@
 
 Use Custom slack emojis in github
 
-## About
+## How to Use
 
-Once added to chrome, click the app and login to slack.
-Then proceed to [Github](https://github.com), and type in the string name of the emoji you want surrounded by `:`'s.
-You must exact match the string, currently there is no support for searching. 
+Once added to chrome click the app and login to slack, then proceed to [Github](https://github.com), and type in the string name of the emoji you want surrounded by `:`'s.
+**Note:** You must exact match the string, currently there is no support for searching. 
 
 ## Installation
 
