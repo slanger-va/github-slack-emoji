@@ -14,7 +14,7 @@ Create a creds.js file to store the `clientId`, `clientSecret`, `scope`, `redire
 
 ## Development
 
-`npm build --watch` 
+`ng build --watch` 
 
 Open [Chrome](chrome://extensions/) and use the Load Unpacked button and select the dist folder.
 
