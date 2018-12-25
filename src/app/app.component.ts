@@ -1,8 +1,7 @@
 import {Component, ElementRef} from '@angular/core';
 import {AppService, EmojieMap} from "./app-service";
-import {combineLatest, Observable} from "rxjs";
+import {Observable} from "rxjs";
 import {FormControl} from "@angular/forms";
-import {map} from "rxjs/operators";
 
 @Component({
   selector: 'app-root',
@@ -12,12 +11,17 @@ import {map} from "rxjs/operators";
 export class AppComponent {
   fontSize: number;
   slackEmojies$: Observable<EmojieMap>;
+  slackToken: string;
   emojiControl: FormControl = new FormControl();
 
-  constructor(appService: AppService, private elementRef: ElementRef) {
+  constructor(private appService: AppService, private elementRef: ElementRef) {
     this.slackEmojies$ = appService.slackEmojies;
     this.fontSize = appService.getFontSize();
-    // if (!this.fontSize) {this.fontSize = 25}
     this.elementRef.nativeElement.style.setProperty('--fontsize', this.fontSize + 'px');
+    this.slackToken = appService.slackToken;
+  }
+
+  login(): void {
+    this.slackToken = this.appService.login();
   }
 }

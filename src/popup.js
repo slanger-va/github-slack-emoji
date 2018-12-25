@@ -21,18 +21,7 @@ function getCookie(){
   chrome.extension.sendMessage({name: 'getLoginCookie'}, function(response) {
     if( response['slackToken']) {
       localStorage.setItem('slackToken', response['slackToken'])
-    } else {
-      let tk = authenticateTeam();
-      if(tk) {
-        localStorage.setItem('slackToken', tk['slackToken'])
-      }
-      window.close();
     }
-  })
-}
-
-function authenticateTeam() {
-  chrome.extension.sendMessage({name: 'authenticateTeam'}, function (otherResponse) {
   })
 }
 

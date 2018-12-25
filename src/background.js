@@ -47,7 +47,8 @@ chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
   }
 
   if(request.setFontSize) {
-
+    localStorage.setItem('fontSize', request.setFontSize);
+    sendResponse({ok: true});
   }
 
   return true;
@@ -101,11 +102,9 @@ function authenticateTeam() {
         localStorage.setItem('slackToken', tk);
         chrome.storage.sync.set({'slackToken': tk}, function() {});
       });
-    // yield put(teamActions.authenticated({ token }));
   } catch (error) {
-    // Authentication error
     const {message} = error;
-    // yield put(teamActions.authenticated({ message }, true));
+    alert('failed to log in.')
   }
 }
 

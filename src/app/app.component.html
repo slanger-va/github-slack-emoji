@@ -1,16 +1,20 @@
-<!--The content below is only a placeholder and can be replaced.-->
 <div style="text-align:center; width: 200px">
   <h1>
     Welcome to Slack-moji!
   </h1>
-    <ng-container *ngIf="slackEmojies$ | async as slackEmojies">
-        <input matInput placeholder="Search by emoji" [formControl]="emojiControl">
-        <br>
-        <br>
-      <ng-container *ngIf="slackEmojies[emojiControl.value]">
-        <img class="imageSize" src="{{slackEmojies[emojiControl.value]}}">
-      </ng-container>
+  <ng-container *ngIf="slackToken; else NotLoggedIn">
+      <ng-container *ngIf="slackEmojies$ | async as slackEmojies">
+          <input matInput placeholder="Search by emoji" [formControl]="emojiControl">
+          <br>
+          <br>
+        <ng-container *ngIf="slackEmojies[emojiControl.value]">
+          <img class="imageSize" src="{{slackEmojies[emojiControl.value]}}">
+        </ng-container>
+    </ng-container>
   </ng-container>
+  <ng-template #NotLoggedIn>
+    <button (click)="login()">Log In</button>
+  </ng-template>
 </div>
 
 <router-outlet></router-outlet>
