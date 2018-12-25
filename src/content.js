@@ -44,7 +44,7 @@ Http.open("GET", url);
 Http.send();
 const emojiMap = new Map();
 Http.onreadystatechange=(e)=> {
-  if (!Http.responseText) {return}
+  if (!Http.responseText || Http.status !== 200 || Http.readyState !== 4 ) {return}
   const text = JSON.parse(Http.responseText);
   const emoji = text.emoji;
   for(let key in emoji) {
