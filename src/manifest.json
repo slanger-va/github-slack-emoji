@@ -25,11 +25,10 @@
   ],
   "options_page": "options.html",
   "permissions": ["storage", "unlimitedStorage", "identity"],
-  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
+  "content_security_policy": "script-src 'self'; object-src 'self'",
   "web_accessible_resources": [
     "assets/css/*",
-    "assets/js/*",
-    "assets/fonts/*"
+    "assets/js/*"
   ],
   "icons": {
     "16": "slack-moji-16.png",

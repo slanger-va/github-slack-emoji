@@ -47,11 +47,13 @@ Http.onreadystatechange=(e)=> {
   if (!Http.responseText || Http.status !== 200 || Http.readyState !== 4 ) {return}
   const text = JSON.parse(Http.responseText);
   const emoji = text.emoji;
-  for(let key in emoji) {
-    if (key.includes('alias:')) {
-      key = key.replace('alias:', '');
+  for (let key in emoji) {
+    while (emoji[key] && emoji[key].includes('alias:')) {
+      key = emoji[key].replace('alias:', '');
     }
-    emojiMap.set(key, emoji[key]);
+    if (emoji[key]) {
+      emojiMap.set(key, emoji[key]);
+    }
   }
 };
 
@@ -81,6 +83,56 @@ function convertString(v) {
   return v;
 }
 
+
+document.addEventListener("keydown", popUp, false);
+document.addEventListener("keyup", keyUp, false);
+let map = new Map();
+function popUp(e) {
+    var code = e.keyCode || e.which;
+    map[code] = true;
+    if (map[91] && map[66]) {
+      var fontSize = localStorage.getItem('fontSize');
+      var keys = emojiMap.keys();
+      var iterator1 = emojiMap.entries();
+      console.log(iterator1.next().value[1]);
+      var seachBox = '<div style="width: 220px; height: 160px; overflow: scroll" id="infinite-list">';
+      seachBox += '</div>';
+      seachBox += `<input style="width: 220px;" type="text" id="emoji"></input>`;
+      document.body.innerHTML +='<dialog>' + seachBox + '</dialog>';
+      var dialog = document.querySelector("dialog");
+      dialog.showModal();
+
+      var listElm = document.querySelector('#infinite-list');
+
+      // Add 20 items.
+      var nextItem = 1;
+      page = 1;
+      var loadMore = function() {
+        for (var i = 0; i < 40; i++) {
+          var item = document.createElement('im');
+          item = '<img src="'+iterator1.next().value[1]+'" height="'+fontSize+'">';
+          listElm.innerHTML += item;
+        }
+      };
+
+      var removeUnloaded
+
+      // Detect when scrolled to bottom.
+      listElm.addEventListener('scroll', function() {
+        if (listElm.scrollTop + listElm.clientHeight >= listElm.scrollHeight) {
+          loadMore();
+        }
+      });
+
+      // Initially load some items.
+      loadMore();
+    }
+}
+
+function keyUp(e) {
+  var code = e.keyCode || e.which;
+  map[code] = false;
+}
 getCookie();
 getFontSize();
 
