@@ -1,6 +1,6 @@
-var textareas = document.getElementsByName('pull_request[body]');
-var commentareas = document.getElementsByName('comment[body]');
-var issueareas = document.getElementsByName('issue_comment[body]');
+let textareas = document.getElementsByName('pull_request[body]');
+let commentareas = document.getElementsByName('comment[body]');
+let issueareas = document.getElementsByName('issue_comment[body]');
 document.addEventListener("keydown", keyDownTextField, false);
 
 
@@ -21,17 +21,17 @@ function getFontSize(){
 }
 
 function keyDownTextField(e) {
-  for (var i = 0, l = textareas.length; i < l; i++) {
+  for (let i = 0, l = textareas.length; i < l; i++) {
     if (textareas[i].value) {
       textareas[i].value = convertString(textareas[i].value);
     }
   }
-  for (var i = 0, l = commentareas.length; i < l; i++) {
+  for (let i = 0, l = commentareas.length; i < l; i++) {
     if (commentareas[i].value) {
       commentareas[i].value = convertString(commentareas[i].value);
     }
   }
-  for (var i = 0, l = issueareas.length; i < l; i++) {
+  for (let i = 0, l = issueareas.length; i < l; i++) {
     if (issueareas[i].value) {
       issueareas[i].value = convertString(issueareas[i].value);
     }
@@ -60,9 +60,9 @@ Http.onreadystatechange=(e)=> {
 function convertString(v) {
   if (emojiMap && emojiMap != null) {
     if (v) {
-      var emojiStrings = v.match(':.*:');
+      let emojiStrings = v.match(':.*:');
       if (emojiStrings) {
-        for (var i = 0; i < emojiStrings.length; i++) {
+        for (let i = 0; i < emojiStrings.length; i++) {
           emoji = emojiStrings[i];
           while( emoji.includes(':')) {
             firstIndex = emoji.indexOf(':');
@@ -88,49 +88,108 @@ document.addEventListener("keydown", popUp, false);
 document.addEventListener("keyup", keyUp, false);
 let map = new Map();
 function popUp(e) {
-    var code = e.keyCode || e.which;
+    let code = e.keyCode || e.which;
     map[code] = true;
     if (map[91] && map[66]) {
-      var fontSize = localStorage.getItem('fontSize');
-      var keys = emojiMap.keys();
-      var iterator1 = emojiMap.entries();
-      console.log(iterator1.next().value[1]);
-      var seachBox = '<div style="width: 220px; height: 160px; overflow: scroll" id="infinite-list">';
+      let fontSize = localStorage.getItem('fontSize');
+      let seachBox = '<div style="width: 220px; height: 160px; overflow: scroll" id="infinite-list">';
       seachBox += '</div>';
       seachBox += `<input style="width: 220px;" type="text" id="emoji"></input>`;
       document.body.innerHTML +='<dialog>' + seachBox + '</dialog>';
-      var dialog = document.querySelector("dialog");
+      let dialog = document.querySelector("dialog");
       dialog.showModal();
 
-      var listElm = document.querySelector('#infinite-list');
+      let listElm = document.querySelector('#infinite-list');
+      let keys = Array.from( emojiMap.keys() );
+      let page = 0;
+      let pageSize = 40;
+      let buffer = 3;
 
-      // Add 20 items.
-      var nextItem = 1;
-      page = 1;
-      var loadMore = function() {
-        for (var i = 0; i < 40; i++) {
-          var item = document.createElement('im');
-          item = '<img src="'+iterator1.next().value[1]+'" height="'+fontSize+'">';
+      // load next page.
+      let nextPage = function(currentPage) {
+        for (let i = currentPage * pageSize; i < pageSize * (currentPage + 1); i++) {
+          let item = document.createElement('im');
+          item = '<img src="'+emojiMap.get(keys[i])+'" height="'+fontSize+'">';
           listElm.innerHTML += item;
         }
       };
 
-      var removeUnloaded
+      // load previous page.
+      let previousPage = function(currentPage) {
+        if (currentPage > 0) {
+          for (let i = (currentPage -1) * pageSize; i < pageSize * currentPage; i++) {
+            let item = document.createElement('im');
+            item = '<img src="' + emojiMap.get(keys[i]) + '" height="' + fontSize + '">';
+            listElm.innerHTML += item;
+          }
+        }
+      };
+
+      let removePageNext = function(currentPage) {
+        let loadedImgs = listElm.innerHTML.split('>');
+        listElm.innerHTML = '';
+        if (loadedImgs.length > pageSize) {
+          for(let i = 0; i < loadedImgs.length; i++) {
+            if (i > currentPage * pageSize && i < pageSize * (currentPage + 1)) {
+
+            } else {
+              loadedImgs[i] += '>';
+              listElm.innerHTML += loadedImgs[i];
+            }
+          }
+        }
+      };
+
+      let removePagePrevious = function(currentPage) {
+        if (currentPage > 2) {
+          let loadedImgs = listElm.innerHTML.split('>');
+          if (loadedImgs.length > pageSize) {
+            let stringToRemove = '';
+            let stringNToRemove = 0;
+            let stringToKeep = '';
+            for (let i = 0; i < loadedImgs.length; i++) {
+              if (i <= pageSize) {
+                stringToRemove += loadedImgs[i] + '>';
+                stringNToRemove = stringNToRemove + (loadedImgs[i] + '>').length;
+              } else {
+                if (loadedImgs[i]) {
+                  stringToKeep += loadedImgs[i] + '>';
+                }
+              }
+            }
+            listElm.innerHTML = listElm.innerHTML.slice(stringNToRemove, listElm.innerHTML.length);
+          }
+        }
+      };
 
       // Detect when scrolled to bottom.
       listElm.addEventListener('scroll', function() {
-        if (listElm.scrollTop + listElm.clientHeight >= listElm.scrollHeight) {
-          loadMore();
+        //TODO fix scolling
+        if (listElm.scrollTop + listElm.clientHeight >= listElm.scrollHeight / 1.9) {
+          page +=1;
+          // console.log('loading next');
+          // console.log(page);
+          nextPage(page);
+          removePagePrevious(page - buffer);
+        } else if (listElm.scrollTop + listElm.clientHeight <= listElm.scrollHeight / 2.1) {
+          // page -=1;
+          // console.log('loading previous');
+          // console.log(page);
+          // previousPage(page);
+          // removePageNext(page + buffer);
         }
       });
 
-      // Initially load some items.
-      loadMore();
+
+      for (let i =0; i < buffer; i++)  {
+        nextPage(page);
+        page +=1;
+      }
     }
 }
 
 function keyUp(e) {
-  var code = e.keyCode || e.which;
+  let code = e.keyCode || e.which;
   map[code] = false;
 }
 getCookie();
