@@ -1,7 +1,9 @@
-let textareas = document.getElementsByName('pull_request[body]');
-let commentareas = document.getElementsByName('comment[body]');
-let issueareas = document.getElementsByName('issue_comment[body]');
-document.addEventListener("keydown", keyDownTextField, false);
+let pull_request = document.getElementsByName('pull_request[body]');
+let comment = document.getElementsByName('comment[body]');
+let issue_comment = document.getElementsByName('issue_comment[body]');
+let pull_request_review_comment = document.getElementsByName('pull_request_review_comment[body]');
+document.addEventListener("keyup", keyUpTextField, false);
+document.addEventListener("keyup", keyDownTextField, false);
 
 
 function getCookie(){
@@ -20,22 +22,81 @@ function getFontSize(){
   })
 }
 
+function isCharacterKeyPress(evt) {
+  if (typeof evt.which == "number" && evt.which > 0) {
+    return !evt.ctrlKey && !evt.metaKey && !evt.altKey && evt.which != 8 && evt.which !== 13;
+  }
+  return false;
+}
+
+function openSearch() {
+  let seachBox = '<div style="width: 220px; height: 160px; overflow: scroll" id="infinite-list"></div>';
+  seachBox += '<input style="width: 220px;" type="text" id="emoji">';
+  document.body.innerHTML += '<dialog>' + seachBox + '</dialog>';
+  let dialog = document.querySelector("dialog");
+  searched('');
+  try {
+    dialog.showModal();
+  }
+  catch (e) {
+    dialog.close();
+    dialog = document.querySelector("dialog");
+    dialog.showModal();
+  }
+
+  var input = document.getElementById("emoji");
+  input.value = ' ';
+  input.onkeyup = function(evt) {
+    let value = input.value;
+    if (isCharacterKeyPress(evt)) {
+      searched(value)
+    }
+  };
+  hideOnClickOutside(dialog);
+}
+
+let fontSize = localStorage.getItem('fontSize');
+function searched(e) {
+  let results = fuse.search(e);
+  if (results) {
+    let listElm = document.querySelector('#infinite-list');
+    if (listElm) {
+      let items = '';
+      for (let i = 0; i < results.length && i < 200; i++) {
+        items += '<img id="' + keys[results[i]] + '" src="' + emojiMap.get(keys[results[i]]) + '" height="' + fontSize + '">';
+      }
+      listElm.innerHTML = items;
+    }
+  }
+}
+
 function keyDownTextField(e) {
-  for (let i = 0, l = textareas.length; i < l; i++) {
-    if (textareas[i].value) {
-      textareas[i].value = convertString(textareas[i].value);
-    }
+  if(e.key === ':') {
+    openSearch();
   }
-  for (let i = 0, l = commentareas.length; i < l; i++) {
-    if (commentareas[i].value) {
-      commentareas[i].value = convertString(commentareas[i].value);
-    }
-  }
-  for (let i = 0, l = issueareas.length; i < l; i++) {
-    if (issueareas[i].value) {
-      issueareas[i].value = convertString(issueareas[i].value);
-    }
-  }
+}
+
+function keyUpTextField(e) {
+  // for (let i = 0, l = pull_request.length; i < l; i++) {
+  //   if (pull_request[i].value) {
+  //     pull_request[i].value = convertString(pull_request[i].value);
+  //   }
+  // }
+  // for (let i = 0, l = issue_comment.length; i < l; i++) {
+  //   if (issue_comment[i].value) {
+  //     issue_comment[i].value = convertString(issue_comment[i].value);
+  //   }
+  // }
+  // for (let i = 0, l = pull_request_review_comment.length; i < l; i++) {
+  //   if (pull_request_review_comment[i].value) {
+  //     pull_request_review_comment[i].value = convertString(pull_request_review_comment[i].value);
+  //   }
+  // }
+  // for (let i = 0, l = comment.length; i < l; i++) {
+  //   if (comment[i].value) {
+  //     comment[i].value = convertString(comment[i].value);
+  //   }
+  // }
 }
 
 const Http = new XMLHttpRequest();
@@ -43,6 +104,8 @@ const url='https://slack.com/api/emoji.list?token=' + localStorage.getItem('slac
 Http.open("GET", url);
 Http.send();
 const emojiMap = new Map();
+let keys = [];
+let fuse;
 Http.onreadystatechange=(e)=> {
   if (!Http.responseText || Http.status !== 200 || Http.readyState !== 4 ) {return}
   const text = JSON.parse(Http.responseText);
@@ -55,6 +118,16 @@ Http.onreadystatechange=(e)=> {
       emojiMap.set(key, emoji[key]);
     }
   }
+  keys = Array.from( emojiMap.keys() );
+  var options = {
+    shouldSort: true,
+    threshold: 0.6,
+    location: 0,
+    distance: 100,
+    maxPatternLength: 32,
+    minMatchCharLength: 1,
+  };
+  fuse = new Fuse(keys, options); // "list" is the item array
 };
 
 function convertString(v) {
@@ -84,109 +157,115 @@ function convertString(v) {
 }
 
 
-document.addEventListener("keydown", popUp, false);
-document.addEventListener("keyup", keyUp, false);
-let map = new Map();
-function popUp(e) {
-    let code = e.keyCode || e.which;
-    map[code] = true;
-    if (map[91] && map[66]) {
-      let fontSize = localStorage.getItem('fontSize');
-      let seachBox = '<div style="width: 220px; height: 160px; overflow: scroll" id="infinite-list">';
-      seachBox += '</div>';
-      seachBox += `<input style="width: 220px;" type="text" id="emoji"></input>`;
-      document.body.innerHTML +='<dialog>' + seachBox + '</dialog>';
-      let dialog = document.querySelector("dialog");
-      dialog.showModal();
-
-      let listElm = document.querySelector('#infinite-list');
-      let keys = Array.from( emojiMap.keys() );
-      let page = 0;
-      let pageSize = 40;
-      let buffer = 3;
-
-      // load next page.
-      let nextPage = function(currentPage) {
-        for (let i = currentPage * pageSize; i < pageSize * (currentPage + 1); i++) {
-          let item = document.createElement('im');
-          item = '<img src="'+emojiMap.get(keys[i])+'" height="'+fontSize+'">';
-          listElm.innerHTML += item;
-        }
-      };
-
-      // load previous page.
-      let previousPage = function(currentPage) {
-        if (currentPage > 0) {
-          for (let i = (currentPage -1) * pageSize; i < pageSize * currentPage; i++) {
-            let item = document.createElement('im');
-            item = '<img src="' + emojiMap.get(keys[i]) + '" height="' + fontSize + '">';
-            listElm.innerHTML += item;
+function hideOnClickOutside(element) {
+  const outsideClickListener = event => {
+    if(event.target && event.srcElement && event.srcElement.childElementCount === 0) {
+      if (event.target.currentSrc && event.target.id) {
+        let imageString = '<img id="' + event.target.id + '" src="' + event.target.currentSrc + '" height="' + localStorage.getItem('fontSize') + '">';
+        for (let i = 0, l = pull_request.length; i < l; i++) {
+          if (pull_request[i].value) {
+            pull_request[i].value += imageString;
           }
         }
-      };
-
-      let removePageNext = function(currentPage) {
-        let loadedImgs = listElm.innerHTML.split('>');
-        listElm.innerHTML = '';
-        if (loadedImgs.length > pageSize) {
-          for(let i = 0; i < loadedImgs.length; i++) {
-            if (i > currentPage * pageSize && i < pageSize * (currentPage + 1)) {
-
-            } else {
-              loadedImgs[i] += '>';
-              listElm.innerHTML += loadedImgs[i];
-            }
+        for (let i = 0, l = issue_comment.length; i < l; i++) {
+          if (issue_comment[i].value) {
+            issue_comment[i].value += imageString;
           }
         }
-      };
-
-      let removePagePrevious = function(currentPage) {
-        if (currentPage > 2) {
-          let loadedImgs = listElm.innerHTML.split('>');
-          if (loadedImgs.length > pageSize) {
-            let stringToRemove = '';
-            let stringNToRemove = 0;
-            let stringToKeep = '';
-            for (let i = 0; i < loadedImgs.length; i++) {
-              if (i <= pageSize) {
-                stringToRemove += loadedImgs[i] + '>';
-                stringNToRemove = stringNToRemove + (loadedImgs[i] + '>').length;
-              } else {
-                if (loadedImgs[i]) {
-                  stringToKeep += loadedImgs[i] + '>';
-                }
-              }
-            }
-            listElm.innerHTML = listElm.innerHTML.slice(stringNToRemove, listElm.innerHTML.length);
+        for (let i = 0, l = pull_request_review_comment.length; i < l; i++) {
+          if (pull_request_review_comment[i].value) {
+            pull_request_review_comment[i].value += imageString;
           }
         }
-      };
-
-      // Detect when scrolled to bottom.
-      listElm.addEventListener('scroll', function() {
-        //TODO fix scolling
-        if (listElm.scrollTop + listElm.clientHeight >= listElm.scrollHeight / 1.9) {
-          page +=1;
-          // console.log('loading next');
-          // console.log(page);
-          nextPage(page);
-          removePagePrevious(page - buffer);
-        } else if (listElm.scrollTop + listElm.clientHeight <= listElm.scrollHeight / 2.1) {
-          // page -=1;
-          // console.log('loading previous');
-          // console.log(page);
-          // previousPage(page);
-          // removePageNext(page + buffer);
+        for (let i = 0, l = comment.length; i < l; i++) {
+          if (comment[i].value) {
+            comment[i].value += imageString;
+          }
         }
-      });
-
-
-      for (let i =0; i < buffer; i++)  {
-        nextPage(page);
-        page +=1;
       }
+    } else {
+      element.close();
+      removeClickListener()
     }
+  };
+
+  const removeClickListener = () => {
+    document.removeEventListener('click', outsideClickListener)
+  };
+
+  document.addEventListener('click', outsideClickListener)
 }
+
+//
+// document.addEventListener("keydown", popUp, false);
+// document.addEventListener("keyup", keyUp, false);
+// let map = new Map();
+// function popUp(e) {
+//     let code = e.keyCode || e.which;
+//     map[code] = true;
+//     if (map[91] && map[66]) {
+//       let fontSize = localStorage.getItem('fontSize');
+//       let seachBox = '<div style="width: 220px; height: 160px; overflow: scroll" id="infinite-list">';
+//       seachBox += '</div>';
+//       seachBox += `<input style="width: 220px;" type="text" id="emoji"></input>`;
+//       document.body.innerHTML +='<dialog>' + seachBox + '</dialog>';
+//       let dialog = document.querySelector("dialog");
+//       try {
+//         dialog.showModal();
+//       }
+//       catch (e) {
+//         dialog.close();
+//         let c = document.querySelector("dialog");
+//         c.showModal();
+//       }
+//       hideOnClickOutside(dialog);
+//       let listElm = document.querySelector('#infinite-list');
+//       let page = 0;
+//       let pageSize = 80;
+//       // load next page.
+//       let nextPage = function(currentPage) {
+//         let items = '';
+//         for (let i = currentPage * pageSize; i < pageSize * (currentPage + 1); i++) {
+//           if (i < keys.length) {
+//             items += '<img id="' + keys[i] + '" src="' + emojiMap.get(keys[i]) + '" height="' + fontSize + '">';
+//           }
+//         }
+//         listElm.innerHTML = items;
+//       };
+//
+//       // load previous page.
+//       let previousPage = function(currentPage) {
+//         if (currentPage > 0) {
+//           let items = '';
+//           for (let i = (currentPage -1) * pageSize; i < pageSize * currentPage; i++) {
+//             items = items + '<img id="' + keys[i] + '" src="' + emojiMap.get(keys[i]) + '" height="' + fontSize + '">';
+//           }
+//           listElm.innerHTML = items;
+//         }
+//       };
+//       scrolled = false;
+//
+//       // Detect when scrolled to bottom.
+//       listElm.addEventListener('scroll', function(e) {
+//         if (e['target'].scrollTop > 15) {
+//           scrolled = true;
+//         }
+//         if (e['target'].scrollTop + e['target'].clientHeight === e['target'].scrollHeight) {
+//           console.log('loading next');
+//           nextPage(page);
+//           page +=1;
+//           scrolled = false;
+//         } else if (e['target'].scrollTop === 0 && scrolled) {
+//           console.log('loading previous');
+//           previousPage(page);
+//           page -=1;
+//           scrolled = false;
+//         }
+//       });
+//       nextPage(page);
+//       page +=1;
+//     }
+// }
 
 function keyUp(e) {
   let code = e.keyCode || e.which;
@@ -194,5 +273,4 @@ function keyUp(e) {
 }
 getCookie();
 getFontSize();
-
 
