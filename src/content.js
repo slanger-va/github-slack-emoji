@@ -1,12 +1,6 @@
-let pull_request = document.getElementsByName('pull_request[body]');
-let comment = document.getElementsByName('comment[body]');
-let issue_comment = document.getElementsByName('issue_comment[body]');
-let pull_request_review_comment = document.getElementsByName('pull_request_review_comment[body]');
-let pull_request_review = document.getElementsByName('pull_request_review[body]');
-let newTextFields = document.getElementsByName('emoji-text-field');
-document.addEventListener("keyup", keyUpTextField, false);
 document.addEventListener("keyup", keyDownTextField, false);
-
+let activeElemnt;
+let dialogIsOpen = false;
 
 function getCookie(){
   chrome.extension.sendMessage({name: 'getLoginCookie'}, function(response) {
@@ -36,22 +30,27 @@ function openSearch() {
   seachBox += '<input style="width: 220px;" type="text" id="emoji">';
   document.body.innerHTML += '<dialog>' + seachBox + '</dialog>';
   let dialog = document.querySelector("dialog");
-  searched('');
   try {
     dialog.showModal();
+    dialogIsOpen = true;
   }
   catch (e) {
     dialog.close();
     dialog = document.querySelector("dialog");
     dialog.showModal();
+    dialogIsOpen = true;
   }
 
   var input = document.getElementById("emoji");
-  input.value = ' ';
+  input.value = '';
   input.onkeyup = function(evt) {
     let value = input.value;
     if (isCharacterKeyPress(evt)) {
-      searched(value)
+      if (value === '') {
+        searched('a');
+      } else {
+        searched(value)
+      }
     }
   };
   hideOnClickOutside(dialog);
@@ -74,49 +73,11 @@ function searched(e) {
 
 function keyDownTextField(e) {
   if(e.key === ':') {
+    if (!dialogIsOpen) {
+      activeElemnt = document.activeElement.id;
+    }
     openSearch();
   }
-}
-
-function keyUpTextField(e) {
-
-  // pull_request = document.getElementsByName('pull_request[body]');
-  // comment = document.getElementsByName('comment[body]');
-  // issue_comment = document.getElementsByName('issue_comment[body]');
-  // pull_request_review_comment = document.getElementsByName('pull_request_review_comment[body]');
-  // pull_request_review = document.getElementsByName('pull_request_review[body]');
-  newTextFields = document.getElementsByName('emoji-text-field');
-
-  for (let i = 0, l = newTextFields.length; i < l; i++) {
-    if (newTextFields[i].style.display === "none") {
-      if (newTextFields[i].parentNode) {
-        let replacedText = document.getElementById(newTextFields[i].id);
-        if (replacedText.innerHTML) {
-          newTextFields[i].innerHTML = replacedText.innerHTML;
-        }
-      }
-    }
-  }
-  // for (let i = 0, l = issue_comment.length; i < l; i++) {
-  //   if (issue_comment[i].value) {
-  //     issue_comment[i].value = convertString(issue_comment[i].value);
-  //   }
-  // }
-  // for (let i = 0, l = pull_request_review_comment.length; i < l; i++) {
-  //   if (pull_request_review_comment[i].value) {
-  //     pull_request_review_comment[i].value = convertString(pull_request_review_comment[i].value);
-  //   }
-  // }
-  // for (let i = 0, l = pull_request_review.length; i < l; i++) {
-  //   if (pull_request_review[i].value) {
-  //     pull_request_review[i].value = convertString(pull_request_review[i].value);
-  //   }
-  // }
-  // for (let i = 0, l = comment.length; i < l; i++) {
-  //   if (comment[i].value) {
-  //     comment[i].value = convertString(comment[i].value);
-  //   }
-  // }
 }
 
 const Http = new XMLHttpRequest();
@@ -181,64 +142,17 @@ function hideOnClickOutside(element) {
   const outsideClickListener = event => {
     if(event.target && event.srcElement && event.srcElement.childElementCount === 0) {
       if (event.target.currentSrc && event.target.id) {
-
-        pull_request = document.getElementsByName('pull_request[body]');
-        comment = document.getElementsByName('comment[body]');
-        issue_comment = document.getElementsByName('issue_comment[body]');
-        pull_request_review_comment = document.getElementsByName('pull_request_review_comment[body]');
-        pull_request_review = document.getElementsByName('pull_request_review[body]');
-        newTextFields = document.getElementsByName('pull_request[body]');
-
+        var usersTextArea = document.getElementById(activeElemnt);
         var imageString = '<img id="' + event.target.id + '" src="' + event.target.currentSrc + '" height="' + localStorage.getItem('fontSize') + '">';
-        for (var i = 0, l = pull_request.length; i < l; i++) {
-          if (pull_request[i].value &&  pull_request[i].style.display !== "none") {
-            var d = document.createElement('div');
-            for (let z = 0, l =  pull_request[i].attributes.length; z < l; z++) {
-              d.setAttribute(pull_request[i].attributes[z].name, pull_request[i].attributes[z].value);
-            }
-            d.innerHTML = pull_request[i].innerHTML;
-            var gitHubEmojiDialog = document.getElementById(pull_request[i].getAttribute('aria-owns'));
-            if (gitHubEmojiDialog){
-              gitHubEmojiDialog.style.display = "none";
-            }
-            d.innerHTML += imageString;
-            d.contentEditable = true;
-            pull_request[i].style.display = "none";
-            pull_request[i].parentNode.insertBefore(d, pull_request[i]);
-            d.name = 'pull_request[body]';
-            newTextFields = document.getElementsByName(d.name);
-          }
-        }
-        for (let i = 0, l = newTextFields.length; i < l; i++) {
-          if (newTextFields[i].style.display !== "none") {
-            if (newTextFields[i].innerHTML) {
-              newTextFields[i].innerHTML += imageString;
-            }
-          }
-        }
-        for (let i = 0, l = issue_comment.length; i < l; i++) {
-          if (issue_comment[i].value) {
-            issue_comment[i].value += imageString;
-          }
-        }
-        for (let i = 0, l = pull_request_review_comment.length; i < l; i++) {
-          if (pull_request_review_comment[i].value) {
-            pull_request_review_comment[i].value += imageString;
-          }
-        }
-        for (let i = 0, l = pull_request_review.length; i < l; i++) {
-          if (pull_request_review[i].value) {
-            pull_request_review[i].value += imageString;
-          }
-        }
-        for (let i = 0, l = comment.length; i < l; i++) {
-          if (comment[i].value) {
-            comment[i].value += imageString;
-          }
+        usersTextArea.innerHTML  += imageString;
+        var gitHubEmojiDialog = document.getElementById(usersTextArea.getAttribute('aria-owns'));
+        if (gitHubEmojiDialog){
+          gitHubEmojiDialog.style.display = "none";
         }
       }
     } else {
       element.close();
+      dialogIsOpen = false;
       removeClickListener()
     }
   };
@@ -250,10 +164,6 @@ function hideOnClickOutside(element) {
   document.addEventListener('click', outsideClickListener)
 }
 
-function keyUp(e) {
-  let code = e.keyCode || e.which;
-  map[code] = false;
-}
 getCookie();
 getFontSize();
 
