@@ -2,6 +2,8 @@ let pull_request = document.getElementsByName('pull_request[body]');
 let comment = document.getElementsByName('comment[body]');
 let issue_comment = document.getElementsByName('issue_comment[body]');
 let pull_request_review_comment = document.getElementsByName('pull_request_review_comment[body]');
+let pull_request_review = document.getElementsByName('pull_request_review[body]');
+let newTextFields = document.getElementsByName('emoji-text-field');
 document.addEventListener("keyup", keyUpTextField, false);
 document.addEventListener("keyup", keyDownTextField, false);
 
@@ -77,11 +79,24 @@ function keyDownTextField(e) {
 }
 
 function keyUpTextField(e) {
-  // for (let i = 0, l = pull_request.length; i < l; i++) {
-  //   if (pull_request[i].value) {
-  //     pull_request[i].value = convertString(pull_request[i].value);
-  //   }
-  // }
+
+  // pull_request = document.getElementsByName('pull_request[body]');
+  // comment = document.getElementsByName('comment[body]');
+  // issue_comment = document.getElementsByName('issue_comment[body]');
+  // pull_request_review_comment = document.getElementsByName('pull_request_review_comment[body]');
+  // pull_request_review = document.getElementsByName('pull_request_review[body]');
+  newTextFields = document.getElementsByName('emoji-text-field');
+
+  for (let i = 0, l = newTextFields.length; i < l; i++) {
+    if (newTextFields[i].style.display === "none") {
+      if (newTextFields[i].parentNode) {
+        let replacedText = document.getElementById(newTextFields[i].id);
+        if (replacedText.innerHTML) {
+          newTextFields[i].innerHTML = replacedText.innerHTML;
+        }
+      }
+    }
+  }
   // for (let i = 0, l = issue_comment.length; i < l; i++) {
   //   if (issue_comment[i].value) {
   //     issue_comment[i].value = convertString(issue_comment[i].value);
@@ -90,6 +105,11 @@ function keyUpTextField(e) {
   // for (let i = 0, l = pull_request_review_comment.length; i < l; i++) {
   //   if (pull_request_review_comment[i].value) {
   //     pull_request_review_comment[i].value = convertString(pull_request_review_comment[i].value);
+  //   }
+  // }
+  // for (let i = 0, l = pull_request_review.length; i < l; i++) {
+  //   if (pull_request_review[i].value) {
+  //     pull_request_review[i].value = convertString(pull_request_review[i].value);
   //   }
   // }
   // for (let i = 0, l = comment.length; i < l; i++) {
@@ -161,10 +181,39 @@ function hideOnClickOutside(element) {
   const outsideClickListener = event => {
     if(event.target && event.srcElement && event.srcElement.childElementCount === 0) {
       if (event.target.currentSrc && event.target.id) {
-        let imageString = '<img id="' + event.target.id + '" src="' + event.target.currentSrc + '" height="' + localStorage.getItem('fontSize') + '">';
-        for (let i = 0, l = pull_request.length; i < l; i++) {
-          if (pull_request[i].value) {
-            pull_request[i].value += imageString;
+
+        pull_request = document.getElementsByName('pull_request[body]');
+        comment = document.getElementsByName('comment[body]');
+        issue_comment = document.getElementsByName('issue_comment[body]');
+        pull_request_review_comment = document.getElementsByName('pull_request_review_comment[body]');
+        pull_request_review = document.getElementsByName('pull_request_review[body]');
+        newTextFields = document.getElementsByName('pull_request[body]');
+
+        var imageString = '<img id="' + event.target.id + '" src="' + event.target.currentSrc + '" height="' + localStorage.getItem('fontSize') + '">';
+        for (var i = 0, l = pull_request.length; i < l; i++) {
+          if (pull_request[i].value &&  pull_request[i].style.display !== "none") {
+            var d = document.createElement('div');
+            for (let z = 0, l =  pull_request[i].attributes.length; z < l; z++) {
+              d.setAttribute(pull_request[i].attributes[z].name, pull_request[i].attributes[z].value);
+            }
+            d.innerHTML = pull_request[i].innerHTML;
+            var gitHubEmojiDialog = document.getElementById(pull_request[i].getAttribute('aria-owns'));
+            if (gitHubEmojiDialog){
+              gitHubEmojiDialog.style.display = "none";
+            }
+            d.innerHTML += imageString;
+            d.contentEditable = true;
+            pull_request[i].style.display = "none";
+            pull_request[i].parentNode.insertBefore(d, pull_request[i]);
+            d.name = 'pull_request[body]';
+            newTextFields = document.getElementsByName(d.name);
+          }
+        }
+        for (let i = 0, l = newTextFields.length; i < l; i++) {
+          if (newTextFields[i].style.display !== "none") {
+            if (newTextFields[i].innerHTML) {
+              newTextFields[i].innerHTML += imageString;
+            }
           }
         }
         for (let i = 0, l = issue_comment.length; i < l; i++) {
@@ -175,6 +224,11 @@ function hideOnClickOutside(element) {
         for (let i = 0, l = pull_request_review_comment.length; i < l; i++) {
           if (pull_request_review_comment[i].value) {
             pull_request_review_comment[i].value += imageString;
+          }
+        }
+        for (let i = 0, l = pull_request_review.length; i < l; i++) {
+          if (pull_request_review[i].value) {
+            pull_request_review[i].value += imageString;
           }
         }
         for (let i = 0, l = comment.length; i < l; i++) {
@@ -195,77 +249,6 @@ function hideOnClickOutside(element) {
 
   document.addEventListener('click', outsideClickListener)
 }
-
-//
-// document.addEventListener("keydown", popUp, false);
-// document.addEventListener("keyup", keyUp, false);
-// let map = new Map();
-// function popUp(e) {
-//     let code = e.keyCode || e.which;
-//     map[code] = true;
-//     if (map[91] && map[66]) {
-//       let fontSize = localStorage.getItem('fontSize');
-//       let seachBox = '<div style="width: 220px; height: 160px; overflow: scroll" id="infinite-list">';
-//       seachBox += '</div>';
-//       seachBox += `<input style="width: 220px;" type="text" id="emoji"></input>`;
-//       document.body.innerHTML +='<dialog>' + seachBox + '</dialog>';
-//       let dialog = document.querySelector("dialog");
-//       try {
-//         dialog.showModal();
-//       }
-//       catch (e) {
-//         dialog.close();
-//         let c = document.querySelector("dialog");
-//         c.showModal();
-//       }
-//       hideOnClickOutside(dialog);
-//       let listElm = document.querySelector('#infinite-list');
-//       let page = 0;
-//       let pageSize = 80;
-//       // load next page.
-//       let nextPage = function(currentPage) {
-//         let items = '';
-//         for (let i = currentPage * pageSize; i < pageSize * (currentPage + 1); i++) {
-//           if (i < keys.length) {
-//             items += '<img id="' + keys[i] + '" src="' + emojiMap.get(keys[i]) + '" height="' + fontSize + '">';
-//           }
-//         }
-//         listElm.innerHTML = items;
-//       };
-//
-//       // load previous page.
-//       let previousPage = function(currentPage) {
-//         if (currentPage > 0) {
-//           let items = '';
-//           for (let i = (currentPage -1) * pageSize; i < pageSize * currentPage; i++) {
-//             items = items + '<img id="' + keys[i] + '" src="' + emojiMap.get(keys[i]) + '" height="' + fontSize + '">';
-//           }
-//           listElm.innerHTML = items;
-//         }
-//       };
-//       scrolled = false;
-//
-//       // Detect when scrolled to bottom.
-//       listElm.addEventListener('scroll', function(e) {
-//         if (e['target'].scrollTop > 15) {
-//           scrolled = true;
-//         }
-//         if (e['target'].scrollTop + e['target'].clientHeight === e['target'].scrollHeight) {
-//           console.log('loading next');
-//           nextPage(page);
-//           page +=1;
-//           scrolled = false;
-//         } else if (e['target'].scrollTop === 0 && scrolled) {
-//           console.log('loading previous');
-//           previousPage(page);
-//           page -=1;
-//           scrolled = false;
-//         }
-//       });
-//       nextPage(page);
-//       page +=1;
-//     }
-// }
 
 function keyUp(e) {
   let code = e.keyCode || e.which;
