@@ -1,5 +1,7 @@
 document.addEventListener("keyup", keyDownTextField, false);
 let activeElemnt;
+let beforeSearchText;
+let afterSearchText;
 let activeElemntValue;
 let dialogIsOpen = false;
 
@@ -80,6 +82,12 @@ function keyDownTextField(e) {
       activeElemnt = document.activeElement;
       activeElemntValue =  document.activeElement.value;
       activeElemnt.innerHTML = activeElemntValue;
+      var start = activeElemnt.selectionStart;
+      var end = activeElemnt.selectionEnd;
+      var text = activeElemnt.value;
+      beforeSearchText = text.substring(0, start);
+      beforeSearchText = beforeSearchText.substring(0,beforeSearchText.length-1);
+      afterSearchText = text.substring(end, text.length);
     }
     openSearch();
   }
@@ -143,15 +151,8 @@ function convertString(v) {
 }
 
 function addTextToTextarea(el, newText) {
-  var start = el.selectionStart
-  var end = el.selectionEnd
-  var text = el.value
-  var before = text.substring(0, start)
-  // console.log(before);
-  var after  = text.substring(end, text.length)
-  el.value = (before + newText + after)
-  el.selectionStart = el.selectionEnd = start + newText.length
-  el.focus()
+  beforeSearchText = beforeSearchText + newText;
+  el.value = (beforeSearchText + afterSearchText);
 }
 
 function hideOnClickOutside(element) {
@@ -164,13 +165,13 @@ function hideOnClickOutside(element) {
     if(event.target && event.srcElement && event.srcElement.childElementCount === 0) {
       if (event.target.currentSrc && event.target.id) {
         var imageString = '<img id="' + event.target.id + '" src="' + event.target.currentSrc + '" height="' + localStorage.getItem('fontSize') + '">';
-        // usersTextArea.innerHTML  += imageString;
         addTextToTextarea(usersTextArea, imageString);
       }
     } else {
-      // console.log(activeElemnt);
       element.close();
       dialogIsOpen = false;
+      document.activeElement = usersTextArea;
+      usersTextArea.focus();
       removeClickListener()
     }
   };
