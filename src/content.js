@@ -1,5 +1,6 @@
 document.addEventListener("keyup", keyDownTextField, false);
 let activeElemnt;
+let activeElemntValue;
 let dialogIsOpen = false;
 
 function getCookie(){
@@ -26,9 +27,11 @@ function isCharacterKeyPress(evt) {
 }
 
 function openSearch() {
+  document.activeElement.value = activeElemntValue;
   let seachBox = '<div style="width: 220px; height: 160px; overflow: scroll" id="infinite-list"></div>';
   seachBox += '<input style="width: 220px;" type="text" id="emoji">';
   document.body.innerHTML += '<dialog>' + seachBox + '</dialog>';
+  activeElemnt.value = activeElemntValue;
   let dialog = document.querySelector("dialog");
   try {
     dialog.showModal();
@@ -74,7 +77,9 @@ function searched(e) {
 function keyDownTextField(e) {
   if(e.key === ':') {
     if (!dialogIsOpen) {
-      activeElemnt = document.activeElement.id;
+      activeElemnt = document.activeElement;
+      activeElemntValue =  document.activeElement.value;
+      activeElemnt.innerHTML = activeElemntValue;
     }
     openSearch();
   }
@@ -137,20 +142,33 @@ function convertString(v) {
   return v;
 }
 
+function addTextToTextarea(el, newText) {
+  var start = el.selectionStart
+  var end = el.selectionEnd
+  var text = el.value
+  var before = text.substring(0, start)
+  // console.log(before);
+  var after  = text.substring(end, text.length)
+  el.value = (before + newText + after)
+  el.selectionStart = el.selectionEnd = start + newText.length
+  el.focus()
+}
 
 function hideOnClickOutside(element) {
   const outsideClickListener = event => {
+    var usersTextArea = document.getElementById(activeElemnt.id);
+    var gitHubEmojiDialog = document.getElementById(usersTextArea.getAttribute('aria-owns'));
+    if (gitHubEmojiDialog){
+      gitHubEmojiDialog.style.display = "none";
+    }
     if(event.target && event.srcElement && event.srcElement.childElementCount === 0) {
       if (event.target.currentSrc && event.target.id) {
-        var usersTextArea = document.getElementById(activeElemnt);
         var imageString = '<img id="' + event.target.id + '" src="' + event.target.currentSrc + '" height="' + localStorage.getItem('fontSize') + '">';
-        usersTextArea.innerHTML  += imageString;
-        var gitHubEmojiDialog = document.getElementById(usersTextArea.getAttribute('aria-owns'));
-        if (gitHubEmojiDialog){
-          gitHubEmojiDialog.style.display = "none";
-        }
+        // usersTextArea.innerHTML  += imageString;
+        addTextToTextarea(usersTextArea, imageString);
       }
     } else {
+      // console.log(activeElemnt);
       element.close();
       dialogIsOpen = false;
       removeClickListener()
