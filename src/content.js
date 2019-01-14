@@ -1,8 +1,9 @@
-var textareas = document.getElementsByName('pull_request[body]');
-var commentareas = document.getElementsByName('comment[body]');
-var issueareas = document.getElementsByName('issue_comment[body]');
-document.addEventListener("keydown", keyDownTextField, false);
-
+document.addEventListener("keyup", keyDownTextField, false);
+let activeElemnt;
+let beforeSearchText;
+let afterSearchText;
+let activeElemntValue;
+let dialogIsOpen = false;
 
 function getCookie(){
   chrome.extension.sendMessage({name: 'getLoginCookie'}, function(response) {
@@ -20,21 +21,82 @@ function getFontSize(){
   })
 }
 
+function isCharacterKeyPress(evt) {
+  if (typeof evt.which == "number" && evt.which > 0) {
+    return !evt.ctrlKey && !evt.metaKey && !evt.altKey && evt.which != 8 && evt.which !== 13;
+  }
+  return false;
+}
+
+function openSearch() {
+  document.activeElement.value = activeElemntValue;
+  let seachBox = '<div style="width: 220px; height: 160px; overflow: scroll" id="infinite-list"></div>';
+  seachBox += '<input style="width: 220px;" type="text" id="emoji">';
+  document.body.innerHTML += '<dialog>' + seachBox + '</dialog>';
+  activeElemnt.value = activeElemntValue;
+  let dialog = document.querySelector("dialog");
+  try {
+    dialog.showModal();
+    dialogIsOpen = true;
+  }
+  catch (e) {
+    dialog.close();
+    dialog = document.querySelector("dialog");
+    dialog.showModal();
+    dialogIsOpen = true;
+  }
+
+  var usersTextArea = document.getElementById(activeElemnt.id);
+  var gitHubEmojiDialog = document.getElementById(usersTextArea.getAttribute('aria-owns'));
+  if (gitHubEmojiDialog){
+    gitHubEmojiDialog.style.display = "none";
+  }
+
+  var input = document.getElementById("emoji");
+  input.value = '';
+  input.onkeyup = function(evt) {
+    let value = input.value;
+    if (isCharacterKeyPress(evt)) {
+      if (value === '') {
+        searched('a');
+      } else {
+        searched(value)
+      }
+    }
+  };
+  hideOnClickOutside(dialog);
+}
+
+let fontSize = localStorage.getItem('fontSize');
+function searched(e) {
+  let results = fuse.search(e);
+  if (results) {
+    let listElm = document.querySelector('#infinite-list');
+    if (listElm) {
+      let items = '';
+      for (let i = 0; i < results.length && i < 200; i++) {
+        items += '<img id="' + keys[results[i]] + '" src="' + emojiMap.get(keys[results[i]]) + '" height="' + fontSize + '">';
+      }
+      listElm.innerHTML = items;
+    }
+  }
+}
+
 function keyDownTextField(e) {
-  for (var i = 0, l = textareas.length; i < l; i++) {
-    if (textareas[i].value) {
-      textareas[i].value = convertString(textareas[i].value);
+  if(e.key === ':') {
+    if (!dialogIsOpen) {
+      activeElemnt = document.activeElement;
+      if (!activeElemnt || !activeElemnt.value) { return }
+      activeElemntValue = document.activeElement.value;
+      activeElemnt.innerHTML = activeElemntValue;
+      var start = activeElemnt.selectionStart;
+      var end = activeElemnt.selectionEnd;
+      var text = activeElemnt.value;
+      beforeSearchText = text.substring(0, start);
+      beforeSearchText = beforeSearchText.substring(0, beforeSearchText.length - 1);
+      afterSearchText = text.substring(end, text.length);
     }
-  }
-  for (var i = 0, l = commentareas.length; i < l; i++) {
-    if (commentareas[i].value) {
-      commentareas[i].value = convertString(commentareas[i].value);
-    }
-  }
-  for (var i = 0, l = issueareas.length; i < l; i++) {
-    if (issueareas[i].value) {
-      issueareas[i].value = convertString(issueareas[i].value);
-    }
+    openSearch();
   }
 }
 
@@ -43,24 +105,38 @@ const url='https://slack.com/api/emoji.list?token=' + localStorage.getItem('slac
 Http.open("GET", url);
 Http.send();
 const emojiMap = new Map();
+let keys = [];
+let fuse;
 Http.onreadystatechange=(e)=> {
   if (!Http.responseText || Http.status !== 200 || Http.readyState !== 4 ) {return}
   const text = JSON.parse(Http.responseText);
   const emoji = text.emoji;
-  for(let key in emoji) {
-    if (key.includes('alias:')) {
-      key = key.replace('alias:', '');
+  for (let key in emoji) {
+    while (emoji[key] && emoji[key].includes('alias:')) {
+      key = emoji[key].replace('alias:', '');
     }
-    emojiMap.set(key, emoji[key]);
+    if (emoji[key]) {
+      emojiMap.set(key, emoji[key]);
+    }
   }
+  keys = Array.from( emojiMap.keys() );
+  var options = {
+    shouldSort: true,
+    threshold: 0.6,
+    location: 0,
+    distance: 100,
+    maxPatternLength: 32,
+    minMatchCharLength: 1,
+  };
+  fuse = new Fuse(keys, options); // "list" is the item array
 };
 
 function convertString(v) {
   if (emojiMap && emojiMap != null) {
     if (v) {
-      var emojiStrings = v.match(':.*:');
+      let emojiStrings = v.match(':.*:');
       if (emojiStrings) {
-        for (var i = 0; i < emojiStrings.length; i++) {
+        for (let i = 0; i < emojiStrings.length; i++) {
           emoji = emojiStrings[i];
           while( emoji.includes(':')) {
             firstIndex = emoji.indexOf(':');
@@ -81,7 +157,35 @@ function convertString(v) {
   return v;
 }
 
+function addTextToTextarea(el, newText) {
+  beforeSearchText = beforeSearchText + newText;
+  el.value = (beforeSearchText + afterSearchText);
+}
+
+function hideOnClickOutside(element) {
+  const outsideClickListener = event => {
+    var usersTextArea = document.getElementById(activeElemnt.id);
+    if(event.target && event.srcElement && event.srcElement.childElementCount === 0) {
+      if (event.target.currentSrc && event.target.id) {
+        var imageString = '<img id="' + event.target.id + '" src="' + event.target.currentSrc + '" height="' + localStorage.getItem('fontSize') + '">';
+        addTextToTextarea(usersTextArea, imageString);
+      }
+    } else {
+      element.close();
+      dialogIsOpen = false;
+      document.activeElement = usersTextArea;
+      usersTextArea.focus();
+      removeClickListener()
+    }
+  };
+
+  const removeClickListener = () => {
+    document.removeEventListener('click', outsideClickListener)
+  };
+
+  document.addEventListener('click', outsideClickListener)
+}
+
 getCookie();
 getFontSize();
-
 

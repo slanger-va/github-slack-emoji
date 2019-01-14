@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Slack-moji",
   "description": "Use custom slack emoji in github",
-  "version": "1.6",
+  "version": "1.7",
   "browser_action": {
     "default_icon": "slack-moji-128.png",
     "default_popup": "index.html"
@@ -18,7 +18,7 @@
         "https://github.com/*"
       ],
       "js": [
-        "content.js"
+        "content.js", "fuse.js"
       ],
       "run_at": "document_end"
     }
@@ -28,8 +28,7 @@
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
   "web_accessible_resources": [
     "assets/css/*",
-    "assets/js/*",
-    "assets/fonts/*"
+    "assets/js/*"
   ],
   "icons": {
     "16": "slack-moji-16.png",

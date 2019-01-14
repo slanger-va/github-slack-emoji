@@ -4,11 +4,13 @@
   </h1>
   <ng-container *ngIf="slackToken; else NotLoggedIn">
       <ng-container *ngIf="slackEmojies$ | async as slackEmojies">
-          <input matInput placeholder="Search by emoji" [formControl]="emojiControl">
+          <input matInput placeholder="Search by emoji" (input)="search($event.target.value)" [formControl]="emojiControl">
           <br>
           <br>
-        <ng-container *ngIf="slackEmojies[emojiControl.value]">
-          <img class="imageSize" src="{{slackEmojies[emojiControl.value]}}">
+        <ng-container *ngIf="shownEmoji.length > 0">
+          <ng-container *ngFor="let emoji of shownEmoji">
+            <img class="imageSize" src="{{emoji}}">
+          </ng-container>
         </ng-container>
     </ng-container>
   </ng-container>

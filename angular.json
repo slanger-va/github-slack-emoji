@@ -34,7 +34,8 @@
               "src/slack-moji-128.png",
               "src/slack-moji-48.png",
               "src/slack-moji-32.png",
-              "src/slack-moji-16.png"
+              "src/slack-moji-16.png",
+              "src/fuse.js"
             ],
             "styles": [
               "src/styles.scss"
