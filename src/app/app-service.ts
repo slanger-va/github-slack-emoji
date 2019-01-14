@@ -11,25 +11,27 @@ export interface EmojieMap {
 
 @Injectable()
 export class AppService {
-  slackEmojies: Observable<EmojieMap>;
+  slackEmojies: Observable<Map<string, string>>;
   slackToken = localStorage.getItem('slackToken');
   constructor(private http: HttpClient) {
     this.slackEmojies = this.getSlackEmojis();
   }
 
-  getSlackEmojis(): Observable<EmojieMap> {
+  getSlackEmojis(): Observable<Map<string, string>> {
     return this.http.get('https://slack.com/api/emoji.list?token='+ this.slackToken).pipe(map(
       ((result: any) => {
         if (result) {
-          const emoji = result.emoji;
-          const paesMap: {[key: string]: string} = {};
-          for(let key in emoji) {
-            if (key.includes('alias:')) {
-              key = key.replace('alias:', '');
+          const emojiMap = new Map();
+            const emoji = result.emoji;
+            for (let key in emoji) {
+              while (emoji[key] && emoji[key].includes('alias:')) {
+                key = emoji[key].replace('alias:', '');
+              }
+              if (emoji[key]) {
+                emojiMap.set(key, emoji[key]);
+              }
             }
-            paesMap[key] = emoji[key]
-          }
-          return paesMap;
+            return emojiMap;
         } else {
           return null;
         }
@@ -42,7 +44,6 @@ export class AppService {
   }
 
   login(): string {
-    console.log('auth');
     let tk = chrome.extension.sendMessage({name: 'authenticateTeam'}, function (otherResponse) {
     });
     if(tk) {
