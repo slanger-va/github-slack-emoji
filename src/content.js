@@ -86,13 +86,14 @@ function keyDownTextField(e) {
   if(e.key === ':') {
     if (!dialogIsOpen) {
       activeElemnt = document.activeElement;
-      activeElemntValue =  document.activeElement.value;
+      if (!activeElemnt || !activeElemnt.value) { return }
+      activeElemntValue = document.activeElement.value;
       activeElemnt.innerHTML = activeElemntValue;
       var start = activeElemnt.selectionStart;
       var end = activeElemnt.selectionEnd;
       var text = activeElemnt.value;
       beforeSearchText = text.substring(0, start);
-      beforeSearchText = beforeSearchText.substring(0,beforeSearchText.length-1);
+      beforeSearchText = beforeSearchText.substring(0, beforeSearchText.length - 1);
       afterSearchText = text.substring(end, text.length);
     }
     openSearch();
