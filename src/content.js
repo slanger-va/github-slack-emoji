@@ -46,6 +46,12 @@ function openSearch() {
     dialogIsOpen = true;
   }
 
+  var usersTextArea = document.getElementById(activeElemnt.id);
+  var gitHubEmojiDialog = document.getElementById(usersTextArea.getAttribute('aria-owns'));
+  if (gitHubEmojiDialog){
+    gitHubEmojiDialog.style.display = "none";
+  }
+
   var input = document.getElementById("emoji");
   input.value = '';
   input.onkeyup = function(evt) {
@@ -158,10 +164,6 @@ function addTextToTextarea(el, newText) {
 function hideOnClickOutside(element) {
   const outsideClickListener = event => {
     var usersTextArea = document.getElementById(activeElemnt.id);
-    var gitHubEmojiDialog = document.getElementById(usersTextArea.getAttribute('aria-owns'));
-    if (gitHubEmojiDialog){
-      gitHubEmojiDialog.style.display = "none";
-    }
     if(event.target && event.srcElement && event.srcElement.childElementCount === 0) {
       if (event.target.currentSrc && event.target.id) {
         var imageString = '<img id="' + event.target.id + '" src="' + event.target.currentSrc + '" height="' + localStorage.getItem('fontSize') + '">';
