@@ -47,9 +47,11 @@ function openSearch() {
   }
 
   var usersTextArea = document.getElementById(activeElemnt.id);
-  var gitHubEmojiDialog = document.getElementById(usersTextArea.getAttribute('aria-owns'));
-  if (gitHubEmojiDialog){
-    gitHubEmojiDialog.style.display = "none";
+  if (usersTextArea) {
+    var gitHubEmojiDialog = document.getElementById(usersTextArea.getAttribute('aria-owns'));
+    if (gitHubEmojiDialog) {
+      gitHubEmojiDialog.style.display = "none";
+    }
   }
 
   var input = document.getElementById("emoji");
@@ -87,6 +89,8 @@ function keyDownTextField(e) {
     if (!dialogIsOpen) {
       activeElemnt = document.activeElement;
       if (!activeElemnt || !activeElemnt.value) { return }
+      var getElemt = document.getElementById(activeElemnt.id);
+      if (!getElemt || !getElemt.value) { return }
       activeElemntValue = document.activeElement.value;
       activeElemnt.innerHTML = activeElemntValue;
       var start = activeElemnt.selectionStart;
