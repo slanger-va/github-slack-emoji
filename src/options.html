@@ -26,19 +26,23 @@
 <body>
 <div style="text-align: center">
   <h1>Slack-moji</h1>
-
-  <div>
-    If you're having issues with Slack-moji, use this button to clear your slack token.
-    <br/>
-    <br/>
-    <button id="clear" style="margin-right: 10px">Clear Slack Token</button> You will need to log in again.
-  </div>
-  <br>
-  <div>
+  <div style="padding-right: 400px">
     Settings:
   </div>
-  <input type="text" id="fontSize"></input>
-  <button id="fontSizeButton">Save font Size</button>
+  <div>
+    <span style="font-size: 14px">Clear Slack Token</span>
+    <button id="clear" style="margin-right: 10px">Clear</button>
+    <span style="font-size: 12px">You will need to log in again</span>
+  </div>
+  <br>
+  <span style="font-size: 14px; padding-bottom: 7px; padding-left: 89px">Font Size</span>
+  <input type="text" id="fontSize" style="width: 40px"></input>
+  <button id="fontSizeButton" style="padding-right: 10px" >Save</button>
+  <span style="font-size: 12px">This controls how large the emoji are displayed </span>
+  <br>
+  <br>
+  <input type="checkbox" id="useSearchCheckBox" style="margin-left: 209px"><span style="padding-right: 10px">Use New Search</span><span style="font-size: 12px">
+  If you prefer the old replacement method to use emoji, turn of New Search</span>
 </div>
 
 <script src="options.js"></script>

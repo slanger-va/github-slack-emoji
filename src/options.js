@@ -16,3 +16,11 @@ document.getElementById('fontSizeButton').addEventListener('click', () => {
     });
   }
 }, false);
+
+let searchToggle = document.getElementById('useSearchCheckBox');
+searchToggle.checked = !!localStorage.getItem('useSearch') && localStorage.getItem('useSearch') !== "false";
+searchToggle.addEventListener('click', () => {
+    searchToggle = document.getElementById('useSearchCheckBox');
+    localStorage.setItem('useSearch', searchToggle.checked);
+    chrome.extension.sendMessage({setUseSearch: searchToggle.checked});
+}, false);

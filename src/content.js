@@ -1,4 +1,7 @@
 document.addEventListener("keyup", keyDownTextField, false);
+let fontSize = localStorage.getItem('fontSize');
+let useSearch = localStorage.getItem('useSearch');
+
 let activeElemnt;
 let beforeSearchText;
 let afterSearchText;
@@ -9,6 +12,17 @@ function getCookie(){
   chrome.extension.sendMessage({name: 'getLoginCookie'}, function(response) {
     if( response['slackToken']) {
       localStorage.setItem('slackToken', response['slackToken'])
+    }
+  })
+}
+
+function getUseSearch(){
+  chrome.extension.sendMessage({name: 'getUseSearch'}, function(response) {
+    if( response['useSearch']) {
+      useSearch =  response['useSearch'];
+      localStorage.setItem('useSearch', response['useSearch'])
+    } else {
+      useSearch = false;
     }
   })
 }
@@ -69,14 +83,13 @@ function openSearch() {
   hideOnClickOutside(dialog);
 }
 
-let fontSize = localStorage.getItem('fontSize');
 function searched(e) {
   let results = fuse.search(e);
   if (results) {
     let listElm = document.querySelector('#infinite-list');
     if (listElm) {
       let items = '';
-      for (let i = 0; i < results.length && i < 200; i++) {
+      for (let i = 0; i < results.length && i < 100; i++) {
         items += '<img id="' + keys[results[i]] + '" src="' + emojiMap.get(keys[results[i]]) + '" height="' + fontSize + '">';
       }
       listElm.innerHTML = items;
@@ -85,12 +98,12 @@ function searched(e) {
 }
 
 function keyDownTextField(e) {
-  if(e.key === ':') {
+  if(e.key === ':' && useSearch !== 'false') {
     if (!dialogIsOpen) {
       activeElemnt = document.activeElement;
-      if (!activeElemnt || !activeElemnt.value) { return }
+      if (!activeElemnt) { return }
       var getElemt = document.getElementById(activeElemnt.id);
-      if (!getElemt || !getElemt.value) { return }
+      if (!getElemt || getElemt.id === 'issue_title') { return }
       activeElemntValue = document.activeElement.value;
       activeElemnt.innerHTML = activeElemntValue;
       var start = activeElemnt.selectionStart;
@@ -101,6 +114,26 @@ function keyDownTextField(e) {
       afterSearchText = text.substring(end, text.length);
     }
     openSearch();
+  } else if  (e.key === ':' && useSearch === 'false') {
+    activeElemnt = document.activeElement;
+    if (!activeElemnt || activeElemnt.id === 'issue_title' ) { return }
+    var usersTextArea = document.getElementById(activeElemnt.id);
+    if (usersTextArea) {
+      usersTextArea.value  = convertString(usersTextArea.value);
+    }
+  }
+  if(e.key === 'Escape') {
+    dialogIsOpen = false;
+    var usersTextArea = document.getElementById(activeElemnt.id);
+    if (usersTextArea) {
+      let dialog = document.querySelector("dialog");
+      if (dialog) {
+        dialog.close();
+      }
+      document.activeElement = usersTextArea;
+      usersTextArea.focus();
+      removeClickListener();
+    }
   }
 }
 
@@ -166,30 +199,35 @@ function addTextToTextarea(el, newText) {
   el.value = (beforeSearchText + afterSearchText);
 }
 
-function hideOnClickOutside(element) {
-  const outsideClickListener = event => {
-    var usersTextArea = document.getElementById(activeElemnt.id);
-    if(event.target && event.srcElement && event.srcElement.childElementCount === 0) {
-      if (event.target.currentSrc && event.target.id) {
-        var imageString = '<img id="' + event.target.id + '" src="' + event.target.currentSrc + '" height="' + localStorage.getItem('fontSize') + '">';
-        addTextToTextarea(usersTextArea, imageString);
-      }
-    } else {
-      element.close();
-      dialogIsOpen = false;
-      document.activeElement = usersTextArea;
-      usersTextArea.focus();
-      removeClickListener()
-    }
-  };
-
-  const removeClickListener = () => {
-    document.removeEventListener('click', outsideClickListener)
-  };
-
+function hideOnClickOutside() {
   document.addEventListener('click', outsideClickListener)
 }
 
+function outsideClickListener(event) {
+  var usersTextArea = document.getElementById(activeElemnt.id);
+  if(event.target && event.srcElement && event.srcElement.childElementCount === 0) {
+    if (event.target.currentSrc && event.target.id) {
+      var imageString = '<img id="' + event.target.id + '" src="' + event.target.currentSrc + '" height="' + localStorage.getItem('fontSize') + '">';
+      addTextToTextarea(usersTextArea, imageString);
+    }
+  } else {
+    let dialog = document.querySelector("dialog");
+    if (dialog) {
+      dialog.close();
+    }
+    dialogIsOpen = false;
+    document.activeElement = usersTextArea;
+    usersTextArea.focus();
+    removeClickListener()
+  }
+}
+
+function removeClickListener() {
+  document.removeEventListener('click', outsideClickListener)
+}
+
+
 getCookie();
 getFontSize();
+getUseSearch();
 
