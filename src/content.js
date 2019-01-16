@@ -11,6 +11,7 @@ let beforeSearchText;
 let afterSearchText;
 let activeElemntValue;
 let dialogIsOpen = false;
+let hideDialog = false;
 
 function getCookie(){
   chrome.extension.sendMessage({name: 'getLoginCookie'}, function(response) {
@@ -49,6 +50,15 @@ function isCharacterKeyPress(evt) {
 function openSearch() {
   document.activeElement.value = activeElemntValue;
   activeElemnt.value = activeElemntValue;
+
+  var usersTextArea = document.getElementById(activeElemnt.id);
+  if (usersTextArea) {
+    var gitHubEmojiDialog = document.getElementById(usersTextArea.getAttribute('aria-owns'));
+    if (gitHubEmojiDialog) {
+      gitHubEmojiDialog.style.display = "none";
+    }
+  }
+
   let dialog = document.querySelector("dialog");
   try {
     dialog.showModal();
@@ -61,14 +71,6 @@ function openSearch() {
     dialogIsOpen = true;
   }
 
-  var usersTextArea = document.getElementById(activeElemnt.id);
-  if (usersTextArea) {
-    var gitHubEmojiDialog = document.getElementById(usersTextArea.getAttribute('aria-owns'));
-    if (gitHubEmojiDialog) {
-      gitHubEmojiDialog.style.display = "none";
-    }
-  }
-
   var input = document.getElementById("emoji");
   input.value = '';
   input.onkeyup = function(evt) {
@@ -77,7 +79,16 @@ function openSearch() {
       if (value === '') {
         searched('a');
       } else {
-        searched(value)
+        if (value.includes(':')) {
+            console.log(usersTextArea.value)
+            addTextToTextarea(usersTextArea, ':' + value);
+            console.log(usersTextArea.value)
+            usersTextArea.value  = convertString(usersTextArea.value);
+            console.log(usersTextArea.value)
+            hideDialog = true;
+        } else {
+          searched(value)
+        }
       }
     }
   };
@@ -100,32 +111,37 @@ function searched(e) {
 
 function keyDownTextField(e) {
   if(e.key === ':' && useSearch !== 'false') {
+    var usersTextArea;
     if (!dialogIsOpen) {
       activeElemnt = document.activeElement;
       if (!activeElemnt) { return }
-      var getElemt = document.getElementById(activeElemnt.id);
-      if (!getElemt || getElemt.id === 'issue_title') { return }
-      activeElemntValue = document.activeElement.value;
-      activeElemnt.innerHTML = activeElemntValue;
       var start = activeElemnt.selectionStart;
       var end = activeElemnt.selectionEnd;
       var text = activeElemnt.value;
       beforeSearchText = text.substring(0, start);
       beforeSearchText = beforeSearchText.substring(0, beforeSearchText.length - 1);
       afterSearchText = text.substring(end, text.length);
+      var getElemt = document.getElementById(activeElemnt.id);
+      if (!getElemt || getElemt.id === 'issue_title') { return }
+      activeElemntValue = document.activeElement.value;
+      activeElemnt.innerHTML = activeElemntValue;
+      openSearch();
     }
-    openSearch();
   } else if  (e.key === ':' && useSearch === 'false') {
     activeElemnt = document.activeElement;
     if (!activeElemnt || activeElemnt.id === 'issue_title' ) { return }
-    var usersTextArea = document.getElementById(activeElemnt.id);
+    var start = activeElemnt.selectionStart;
+    var end = activeElemnt.selectionEnd;
+    var text = activeElemnt.value;
+    beforeSearchText = text.substring(0, start);
+    beforeSearchText = beforeSearchText.substring(0, beforeSearchText.length - 1);
+    afterSearchText = text.substring(end, text.length);
     if (usersTextArea) {
       usersTextArea.value  = convertString(usersTextArea.value);
     }
   }
   if(e.key === 'Escape') {
     dialogIsOpen = false;
-    var usersTextArea = document.getElementById(activeElemnt.id);
     if (usersTextArea) {
       let dialog = document.querySelector("dialog");
       if (dialog) {
@@ -135,6 +151,13 @@ function keyDownTextField(e) {
       usersTextArea.focus();
       removeClickListener();
     }
+  }
+  if (hideDialog) {
+    hideDialog = false;
+    outsideClickListener();
+  }
+  if (activeElemnt) {
+    usersTextArea = document.getElementById(activeElemnt.id);
   }
 }
 
@@ -206,7 +229,7 @@ function hideOnClickOutside() {
 
 function outsideClickListener(event) {
   var usersTextArea = document.getElementById(activeElemnt.id);
-  if(event.target && event.srcElement && event.srcElement.childElementCount === 0) {
+  if(event && event.target && event.srcElement && event.srcElement.childElementCount === 0) {
     if (event.target.currentSrc && event.target.id) {
       var imageString = '<img id="' + event.target.id + '" src="' + event.target.currentSrc + '" height="' + localStorage.getItem('fontSize') + '">';
       addTextToTextarea(usersTextArea, imageString);
@@ -216,10 +239,10 @@ function outsideClickListener(event) {
     if (dialog) {
       dialog.close();
     }
-    dialogIsOpen = false;
     document.activeElement = usersTextArea;
     usersTextArea.focus();
-    removeClickListener()
+    removeClickListener();
+    dialogIsOpen = false;
   }
 }
 
