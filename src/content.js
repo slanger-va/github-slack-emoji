@@ -2,6 +2,10 @@ document.addEventListener("keyup", keyDownTextField, false);
 let fontSize = localStorage.getItem('fontSize');
 let useSearch = localStorage.getItem('useSearch');
 
+let seachBox = '<div style="width: 220px; height: 160px; overflow: scroll" id="infinite-list"></div>';
+seachBox += '<input style="width: 220px;" type="text" id="emoji">';
+document.body.innerHTML += '<dialog>' + seachBox + '</dialog>';
+
 let activeElemnt;
 let beforeSearchText;
 let afterSearchText;
@@ -44,9 +48,6 @@ function isCharacterKeyPress(evt) {
 
 function openSearch() {
   document.activeElement.value = activeElemntValue;
-  let seachBox = '<div style="width: 220px; height: 160px; overflow: scroll" id="infinite-list"></div>';
-  seachBox += '<input style="width: 220px;" type="text" id="emoji">';
-  document.body.innerHTML += '<dialog>' + seachBox + '</dialog>';
   activeElemnt.value = activeElemntValue;
   let dialog = document.querySelector("dialog");
   try {
