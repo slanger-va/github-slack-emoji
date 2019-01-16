@@ -117,3 +117,11 @@ function authenticateTeam() {
   }
 }
 
+
+chrome.commands.onCommand.addListener(function(command) {
+  console.log('Command:', command);
+  if (command === "show-emoji-search-dialog" ){
+    //Toggle search
+  }
+});
+

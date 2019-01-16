@@ -231,3 +231,11 @@ getCookie();
 getFontSize();
 getUseSearch();
 
+
+chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
+  if (request.name === 'setLoginCookie') {
+    var obj = {slackToken: localStorage.getItem('slackToken')};
+    chrome.storage.sync.set(obj, function () {
+    });
+  }
+});

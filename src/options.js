@@ -24,3 +24,15 @@ searchToggle.addEventListener('click', () => {
     localStorage.setItem('useSearch', searchToggle.checked);
     chrome.extension.sendMessage({setUseSearch: searchToggle.checked});
 }, false);
+
+
+document.getElementById('Keybind').addEventListener('click', () => {
+  var key = document.getElementById('Keypress').value;
+  console.log(key);
+  // if (fontsize && fontsize > 0) {
+  //   chrome.extension.sendMessage({setFontSize: fontsize}, function(response) {
+  //     localStorage.setItem('fontSize', fontsize);
+  //   });
+  // }
+}, false);
+
