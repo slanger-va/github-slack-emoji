@@ -42,7 +42,7 @@ function getFontSize(){
 
 function isCharacterKeyPress(evt) {
   if (typeof evt.which == "number" && evt.which > 0) {
-    return !evt.ctrlKey && !evt.metaKey && !evt.altKey && evt.which != 8 && evt.which !== 13;
+    return !evt.ctrlKey && !evt.metaKey && !evt.altKey && evt.which !== 13;
   }
   return false;
 }
@@ -125,32 +125,24 @@ function keyDownTextField(e) {
       if (!getElemt || getElemt.id === 'issue_title') { return }
       activeElemntValue = document.activeElement.value;
       activeElemnt.innerHTML = activeElemntValue;
+      var start = activeElemnt.selectionStart;
+      var end = activeElemnt.selectionEnd;
+      var text = activeElemnt.value;
+      beforeSearchText = text.substring(0, start);
+      beforeSearchText = beforeSearchText.substring(0, beforeSearchText.length - 1);
+      afterSearchText = text.substring(end, text.length);
       openSearch();
     }
   } else if  (e.key === ':' && useSearch === 'false') {
     activeElemnt = document.activeElement;
     if (!activeElemnt || activeElemnt.id === 'issue_title' ) { return }
-    var start = activeElemnt.selectionStart;
-    var end = activeElemnt.selectionEnd;
-    var text = activeElemnt.value;
-    beforeSearchText = text.substring(0, start);
-    beforeSearchText = beforeSearchText.substring(0, beforeSearchText.length - 1);
-    afterSearchText = text.substring(end, text.length);
+    var usersTextArea = document.getElementById(activeElemnt.id);
     if (usersTextArea) {
       usersTextArea.value  = convertString(usersTextArea.value);
     }
   }
   if(e.key === 'Escape') {
-    dialogIsOpen = false;
-    if (usersTextArea) {
-      let dialog = document.querySelector("dialog");
-      if (dialog) {
-        dialog.close();
-      }
-      document.activeElement = usersTextArea;
-      usersTextArea.focus();
-      removeClickListener();
-    }
+    closeDialog();
   }
   if (hideDialog) {
     hideDialog = false;
@@ -173,11 +165,18 @@ Http.onreadystatechange=(e)=> {
   const text = JSON.parse(Http.responseText);
   const emoji = text.emoji;
   for (let key in emoji) {
-    while (emoji[key] && emoji[key].includes('alias:')) {
-      key = emoji[key].replace('alias:', '');
-    }
-    if (emoji[key]) {
-      emojiMap.set(key, emoji[key]);
+    if (emoji[key].includes('alias:')) {
+      let childKey = key;
+      while (emoji[key] && emoji[key].includes('alias:')) {
+        key = emoji[key].replace('alias:', '');
+      }
+      if (emoji[key]) {
+        emojiMap.set(childKey, emoji[key]);
+      }
+    } else {
+      if (emoji[key]) {
+        emojiMap.set(key, emoji[key]);
+      }
     }
   }
   keys = Array.from( emojiMap.keys() );
@@ -235,19 +234,29 @@ function outsideClickListener(event) {
       addTextToTextarea(usersTextArea, imageString);
     }
   } else {
-    let dialog = document.querySelector("dialog");
-    if (dialog) {
-      dialog.close();
-    }
-    document.activeElement = usersTextArea;
-    usersTextArea.focus();
-    removeClickListener();
-    dialogIsOpen = false;
+    closeDialog()
   }
 }
 
 function removeClickListener() {
   document.removeEventListener('click', outsideClickListener)
+}
+
+
+function closeDialog() {
+  let dialog = document.querySelector("dialog");
+  if (dialog) {
+    dialog.close();
+    dialogIsOpen = false;
+  }
+
+  let usersTextArea = document.getElementById(activeElemnt.id);
+  if (usersTextArea) {
+    document.activeElement = usersTextArea;
+    usersTextArea.focus();
+  }
+
+  removeClickListener();
 }
 
 
