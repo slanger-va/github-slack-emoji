@@ -1,4 +1,5 @@
 document.addEventListener("keyup", keyDownTextField, false);
+document.addEventListener("keydown", keyDown, false);
 let fontSize = localStorage.getItem('fontSize');
 let useSearch = localStorage.getItem('useSearch');
 
@@ -13,6 +14,7 @@ let activeElemntValue;
 let dialogIsOpen = false;
 let hideDialog = false;
 let textlengthAdded = 0;
+let pressedKeys = [];
 
 function getCookie(){
   chrome.extension.sendMessage({name: 'getLoginCookie'}, function(response) {
@@ -108,7 +110,7 @@ function searched(e) {
 }
 
 function keyDownTextField(e) {
-  if(e.key === ':' && useSearch !== 'false') {
+  if((e.key === ':' || pressedKeys.find(k => k.which === 186) && pressedKeys.find(k => k.which === 16) || pressedKeys.find(k => k.key === ':')) && useSearch !== 'false') {
     var usersTextArea;
     if (!dialogIsOpen) {
       activeElemnt = document.activeElement;
@@ -141,7 +143,9 @@ function keyDownTextField(e) {
         let oldlength = usersTextArea.value.length;
         usersTextArea.value = convertString(usersTextArea.value);
         usersTextArea.focus();
-        usersTextArea.selectionEnd = beforeSearchText.length + (usersTextArea.value.length - oldlength);
+        if (oldlength !== usersTextArea.value .length) {
+          usersTextArea.selectionEnd = beforeSearchText.length + (usersTextArea.value.length - oldlength);
+        }
       }
     }
   }
@@ -149,6 +153,7 @@ function keyDownTextField(e) {
   if(e.key === 'Escape') {
     closeDialog();
   }
+  pressedKeys = pressedKeys.filter(k => k.key !== e.key);
 }
 
 
@@ -280,6 +285,10 @@ function closeDialog() {
 
 
   removeClickListener();
+}
+
+function keyDown(e) {
+  pressedKeys.push(e);
 }
 
 
