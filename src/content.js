@@ -12,6 +12,7 @@ let afterSearchText;
 let activeElemntValue;
 let dialogIsOpen = false;
 let hideDialog = false;
+let textlengthAdded = 0;
 
 function getCookie(){
   chrome.extension.sendMessage({name: 'getLoginCookie'}, function(response) {
@@ -42,7 +43,7 @@ function getFontSize(){
 
 function isCharacterKeyPress(evt) {
   if (typeof evt.which == "number" && evt.which > 0) {
-    return !evt.ctrlKey && !evt.metaKey && !evt.altKey && evt.which !== 13;
+    return !evt.ctrlKey && !evt.metaKey && !evt.altKey && evt.which !== 13  && evt.which !== 186;
   }
   return false;
 }
@@ -79,18 +80,15 @@ function openSearch() {
       if (value === '') {
         searched('a');
       } else {
-        if (value.includes(':')) {
-            console.log(usersTextArea.value)
-            addTextToTextarea(usersTextArea, ':' + value);
-            console.log(usersTextArea.value)
-            usersTextArea.value  = convertString(usersTextArea.value);
-            console.log(usersTextArea.value)
-            hideDialog = true;
-        } else {
-          searched(value)
-        }
+        searched(value)
+      }
+    } else if (evt.which === 186) {
+      hideDialog = true;
+      if (usersTextArea) {
+        addTextToTextarea(usersTextArea, ':' + value);
       }
     }
+
   };
   hideOnClickOutside(dialog);
 }
@@ -114,42 +112,56 @@ function keyDownTextField(e) {
     var usersTextArea;
     if (!dialogIsOpen) {
       activeElemnt = document.activeElement;
+      setBeforeAndAfterSearch();
       if (!activeElemnt) { return }
-      var start = activeElemnt.selectionStart;
-      var end = activeElemnt.selectionEnd;
-      var text = activeElemnt.value;
-      beforeSearchText = text.substring(0, start);
-      beforeSearchText = beforeSearchText.substring(0, beforeSearchText.length - 1);
-      afterSearchText = text.substring(end, text.length);
       var getElemt = document.getElementById(activeElemnt.id);
       if (!getElemt || getElemt.id === 'issue_title') { return }
       activeElemntValue = document.activeElement.value;
       activeElemnt.innerHTML = activeElemntValue;
-      var start = activeElemnt.selectionStart;
-      var end = activeElemnt.selectionEnd;
-      var text = activeElemnt.value;
-      beforeSearchText = text.substring(0, start);
-      beforeSearchText = beforeSearchText.substring(0, beforeSearchText.length - 1);
-      afterSearchText = text.substring(end, text.length);
       openSearch();
     }
-  } else if  (e.key === ':' && useSearch === 'false') {
+  }
+
+  if (hideDialog) {
+    closeDialog();
+  } else if (e.key === ':') {
+    beforeSearchText += ':';
+  }
+
+  if (useSearch === "false") {
+    activeElemntValue = document.activeElement.value;
     activeElemnt = document.activeElement;
-    if (!activeElemnt || activeElemnt.id === 'issue_title' ) { return }
-    var usersTextArea = document.getElementById(activeElemnt.id);
+    setBeforeAndAfterSearch()
+  }
+
+  if (activeElemnt && activeElemnt.id !== 'issue_title') {
+    usersTextArea = document.getElementById(activeElemnt.id);
     if (usersTextArea) {
-      usersTextArea.value  = convertString(usersTextArea.value);
+      if (usersTextArea.value.match(':.*:')) {
+        let oldlength = usersTextArea.value.length;
+        usersTextArea.value = convertString(usersTextArea.value);
+        usersTextArea.focus();
+        usersTextArea.selectionEnd = beforeSearchText.length + (usersTextArea.value.length - oldlength);
+      }
     }
   }
+
   if(e.key === 'Escape') {
     closeDialog();
   }
-  if (hideDialog) {
-    hideDialog = false;
-    outsideClickListener();
-  }
+}
+
+
+function setBeforeAndAfterSearch() {
   if (activeElemnt) {
-    usersTextArea = document.getElementById(activeElemnt.id);
+    var start = activeElemnt.selectionStart;
+    var end = activeElemnt.selectionEnd;
+    var text = activeElemnt.value;
+    if (text) {
+      beforeSearchText = text.substring(0, start);
+      beforeSearchText = beforeSearchText.substring(0, beforeSearchText.length - 1);
+      afterSearchText = text.substring(end, text.length);
+    }
   }
 }
 
@@ -218,7 +230,13 @@ function convertString(v) {
 }
 
 function addTextToTextarea(el, newText) {
+  var start = activeElemnt.selectionStart;
+  var end = activeElemnt.selectionEnd;
+  var text = activeElemnt.value;
+  beforeSearchText = text.substring(0, start);
+  beforeSearchText = beforeSearchText.substring(0, beforeSearchText.length - 1);
   beforeSearchText = beforeSearchText + newText;
+  afterSearchText = text.substring(end, text.length);
   el.value = (beforeSearchText + afterSearchText);
 }
 
@@ -248,13 +266,18 @@ function closeDialog() {
   if (dialog) {
     dialog.close();
     dialogIsOpen = false;
+    hideDialog = false;
   }
 
   let usersTextArea = document.getElementById(activeElemnt.id);
   if (usersTextArea) {
     document.activeElement = usersTextArea;
     usersTextArea.focus();
+    if (textlengthAdded > 0) {
+      document.activeElement.selectionEnd = beforeSearchText.length;
+    }
   }
+
 
   removeClickListener();
 }
