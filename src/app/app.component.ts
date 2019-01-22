@@ -4,6 +4,7 @@ import {Observable} from "rxjs";
 import {FormControl} from "@angular/forms";
 import {first} from "rxjs/operators";
 import * as Fuse from "fuse.js";
+import {MatSnackBar} from "@angular/material";
 
 @Component({
   selector: 'app-root',
@@ -28,7 +29,7 @@ export class AppComponent {
   };
   fuse: Fuse<string>;
 
-  constructor(private appService: AppService, private elementRef: ElementRef) {
+  constructor(private appService: AppService, private elementRef: ElementRef, private snackBar: MatSnackBar) {
     this.slackEmojies$ = appService.slackEmojies;
     this.fontSize = appService.getFontSize();
     this.elementRef.nativeElement.style.setProperty('--fontsize', this.fontSize + 'px');
@@ -61,5 +62,11 @@ export class AppComponent {
 
   login(): void {
     this.slackToken = this.appService.login();
+  }
+
+  copyToClipBoard(value) {
+    let text = '<img class="{{this.fontSize}}" src="{{value}}">'
+    // this.copyTextToClipboard(text);
+    console.log(text);
   }
 }

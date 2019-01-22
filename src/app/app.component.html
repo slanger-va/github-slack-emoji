@@ -9,7 +9,9 @@
           <br>
         <ng-container *ngIf="shownEmoji.length > 0">
           <ng-container *ngFor="let emoji of shownEmoji">
-            <img class="imageSize" src="{{emoji}}">
+            <button onclick="copyToClipBoard(emoji)">
+              <img class="imageSize" src="{{emoji}}">
+            </button>
           </ng-container>
         </ng-container>
     </ng-container>
