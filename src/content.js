@@ -267,6 +267,7 @@ function removeClickListener() {
 
 
 function closeDialog() {
+  clearKeyPressed();
   let dialog = document.querySelector("dialog");
   if (dialog) {
     dialog.close();
@@ -289,6 +290,10 @@ function closeDialog() {
 
 function keyDown(e) {
   pressedKeys.push(e);
+}
+
+function clearKeyPressed(e) {
+  pressedKeys = [];
 }
 
 
