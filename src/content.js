@@ -2,6 +2,7 @@ document.addEventListener("keyup", keyDownTextField, false);
 document.addEventListener("keydown", keyDown, false);
 let fontSize = localStorage.getItem('fontSize');
 let useSearch = localStorage.getItem('useSearch');
+let shortcut = localStorage.getItem('shortcut');
 
 let seachBox = '<div style="width: 220px; height: 160px; overflow: scroll" id="infinite-list"></div>';
 seachBox += '<input style="width: 220px;" type="text" id="emoji">';
@@ -39,6 +40,14 @@ function getFontSize(){
   chrome.extension.sendMessage({name: 'getFontSize'}, function(response) {
     if( response['fontSize']) {
       localStorage.setItem('fontSize', response['fontSize'])
+    }
+  })
+}
+
+function getShortcut() {
+  chrome.extension.sendMessage({name: 'getShortcut'}, function(response) {
+    if (response['shortcut']) {
+      localStorage.setItem('shortcut', response['shortcut'])
     }
   })
 }
@@ -110,7 +119,7 @@ function searched(e) {
 }
 
 function keyDownTextField(e) {
-  if((e.key === ':' || pressedKeys.find(k => k.which === 186) && pressedKeys.find(k => k.which === 16) || pressedKeys.find(k => k.key === ':')) && useSearch !== 'false') {
+  if((e.key === shortcut || pressedKeys.find(k => k.which === 186) && pressedKeys.find(k => k.which === 16) || pressedKeys.find(k => k.key === shortcut)) && useSearch !== 'false') {
     var usersTextArea;
     if (!dialogIsOpen) {
       activeElemnt = document.activeElement;
@@ -126,8 +135,8 @@ function keyDownTextField(e) {
 
   if (hideDialog) {
     closeDialog();
-  } else if (e.key === ':') {
-    beforeSearchText += ':';
+  } else if (e.key === shortcut) {
+    beforeSearchText += shortcut;
   }
 
   if (useSearch === "false") {
@@ -300,4 +309,5 @@ function clearKeyPressed(e) {
 getCookie();
 getFontSize();
 getUseSearch();
+getShortcut();
 

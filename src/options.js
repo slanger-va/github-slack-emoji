@@ -24,3 +24,12 @@ searchToggle.addEventListener('click', () => {
     localStorage.setItem('useSearch', searchToggle.checked);
     chrome.extension.sendMessage({setUseSearch: searchToggle.checked});
 }, false);
+
+document.getElementById('shortcutButtton').addEventListener('click', () => {
+  shortcut = document.getElementById('shortcut').value || ':';
+  if (shortcut && shortcut > 0) {
+    chrome.extension.sendMessage({setShortcut: shortcut}, function(response) {
+      localStorage.setItem('shortcut', shortcut);
+    });
+  }
+}, false);
