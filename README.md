@@ -4,17 +4,19 @@ Use Custom slack emojis in github
 
 ## How to Use
 
-Once added to chrome click the app and login to slack, then proceed to [Github](https://github.com), and type in the string name of the emoji you want surrounded by `:`'s.
-**Note:** You must exact match the string, currently there is no support for searching. 
+Add to the extension to Chrome [Chrome Web Store](https://chrome.google.com/webstore/detail/iaigeepmkbaoeebbobooiplapajefmjd/publish-accepted?authuser=0&hl=en)
 
-## Installation
-
-Create a creds.js file to store the `clientId`, `clientSecret`, `scope`, `redirectUri`, and `fontSize` to localStorage
+Once added to chrome click the app and login to your slack workspace.
+ Next you will need to navigate to [Github](https://github.com) and type in the shortcut key (you can set the shortcut key [here](chrome-extension://iaigeepmkbaoeebbobooiplapajefmjd/options.html), default is set to `:`) in order to bring up the emoji search.
+ 
+ Now simply type in the name of the emoji you are looking for and select it. 
 
 ## Development
 
-`ng build --watch` 
+First you need a `creds.js` file to store the `clientId`, `clientSecret`, `scope`, `redirectUri`, and `fontSize` to localStorage
 
-Open [Chrome](chrome://extensions/) and use the Load Unpacked button and select the dist folder.
+Next run `ng build --watch` to build the extension
 
-Reload and the extension will be running. 
+After the build is complete open [Chrome Extensions](chrome://extensions/) and use the Load Unpacked button.
+Next you will select the dist folder for the extension and load it.
+Now in a new tab (or refresh a existing tab) navigate to a github page to test. 
