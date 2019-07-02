@@ -111,7 +111,7 @@ function searched(e) {
     if (listElm) {
       let items = '';
       for (let i = 0; i < results.length && i < 100; i++) {
-        items += '<img id="' + keys[results[i]] + '" src="' + emojiMap.get(keys[results[i]]) + '" height="' + fontSize + '">';
+        items += '<img id="' + keys[results[i]] + '" src="' + emojiMap.get(keys[results[i]]) + '" height="' + fontSize + '" title="' + keys[results[i]] + '">';
       }
       listElm.innerHTML = items;
     }
@@ -231,7 +231,7 @@ function convertString(v) {
             newemoji = newemoji.substring(firstIndex,secondIndex);
             slackEmoji = emojiMap.get(newemoji);
             if (slackEmoji) {
-              imageString = '<img src="'+slackEmoji+'" height="'+localStorage.getItem('fontSize')+'">';
+              imageString = '<img src="'+slackEmoji+'" height="'+localStorage.getItem('fontSize')+'" title="' + newemoji + '">';
               v = v.replace(':'+newemoji+':', imageString);
             }
             emoji = emoji.replace(':', '');
