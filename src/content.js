@@ -2,15 +2,16 @@ document.addEventListener("keyup", keyDownTextField, false);
 document.addEventListener("keydown", keyDown, false);
 let fontSize = localStorage.getItem('fontSize');
 let useSearch = localStorage.getItem('useSearch');
+let shortcut = parseInt(localStorage.getItem('shortcut') || '58');
 
 let seachBox = '<div style="width: 220px; height: 160px; overflow: scroll" id="infinite-list"></div>';
 seachBox += '<input style="width: 220px;" type="text" id="emoji">';
 document.body.innerHTML += '<dialog>' + seachBox + '</dialog>';
 
-let activeElemnt;
+let activeElement;
 let beforeSearchText;
 let afterSearchText;
-let activeElemntValue;
+let activeElementValue;
 let dialogIsOpen = false;
 let hideDialog = false;
 let textlengthAdded = 0;
@@ -43,6 +44,14 @@ function getFontSize(){
   })
 }
 
+function getShortcut() {
+  chrome.extension.sendMessage({name: 'getShortcut'}, function(response) {
+    if (response['shortcut']) {
+      localStorage.setItem('shortcut', response['shortcut'])
+    }
+  })
+}
+
 function isCharacterKeyPress(evt) {
   if (typeof evt.which == "number" && evt.which > 0) {
     return !evt.ctrlKey && !evt.metaKey && !evt.altKey && evt.which !== 13  && evt.which !== 186;
@@ -51,10 +60,10 @@ function isCharacterKeyPress(evt) {
 }
 
 function openSearch() {
-  document.activeElement.value = activeElemntValue;
-  activeElemnt.value = activeElemntValue;
+  document.activeElement.value = activeElementValue;
+  activeElement.value = activeElementValue;
 
-  var usersTextArea = document.getElementById(activeElemnt.id);
+  var usersTextArea = document.getElementById(activeElement.id);
   if (usersTextArea) {
     var gitHubEmojiDialog = document.getElementById(usersTextArea.getAttribute('aria-owns'));
     if (gitHubEmojiDialog) {
@@ -102,7 +111,7 @@ function searched(e) {
     if (listElm) {
       let items = '';
       for (let i = 0; i < results.length && i < 100; i++) {
-        items += '<img id="' + keys[results[i]] + '" src="' + emojiMap.get(keys[results[i]]) + '" height="' + fontSize + '">';
+        items += '<img id="' + keys[results[i]] + '" src="' + emojiMap.get(keys[results[i]]) + '" height="' + fontSize + '" title="' + keys[results[i]] + '">';
       }
       listElm.innerHTML = items;
     }
@@ -110,34 +119,34 @@ function searched(e) {
 }
 
 function keyDownTextField(e) {
-  if((e.key === ':' || pressedKeys.find(k => k.which === 186) && pressedKeys.find(k => k.which === 16) || pressedKeys.find(k => k.key === ':')) && useSearch !== 'false') {
+  if((e.key.charCodeAt(0) === shortcut || pressedKeys.find(k => k.key.charCodeAt(0) === shortcut)) && useSearch !== 'false') {
     var usersTextArea;
     if (!dialogIsOpen) {
-      activeElemnt = document.activeElement;
+      activeElement = document.activeElement;
       setBeforeAndAfterSearch();
-      if (!activeElemnt) { return }
-      var getElemt = document.getElementById(activeElemnt.id);
+      if (!activeElement) { return }
+      var getElemt = document.getElementById(activeElement.id);
       if (!getElemt || getElemt.id === 'issue_title') { return }
-      activeElemntValue = document.activeElement.value;
-      activeElemnt.innerHTML = activeElemntValue;
+      activeElementValue = document.activeElement.value;
+      activeElement.innerHTML = activeElementValue;
       openSearch();
     }
   }
 
   if (hideDialog) {
     closeDialog();
-  } else if (e.key === ':') {
-    beforeSearchText += ':';
+  } else if (e.key === shortcut) {
+    beforeSearchText += shortcut;
   }
 
   if (useSearch === "false") {
-    activeElemntValue = document.activeElement.value;
-    activeElemnt = document.activeElement;
+    activeElementValue = document.activeElement.value;
+    activeElement = document.activeElement;
     setBeforeAndAfterSearch()
   }
 
-  if (activeElemnt && activeElemnt.id !== 'issue_title') {
-    usersTextArea = document.getElementById(activeElemnt.id);
+  if (activeElement && activeElement.id !== 'issue_title') {
+    usersTextArea = document.getElementById(activeElement.id);
     if (usersTextArea) {
       if (usersTextArea.value.match(':.*:')) {
         let oldlength = usersTextArea.value.length;
@@ -158,10 +167,10 @@ function keyDownTextField(e) {
 
 
 function setBeforeAndAfterSearch() {
-  if (activeElemnt) {
-    var start = activeElemnt.selectionStart;
-    var end = activeElemnt.selectionEnd;
-    var text = activeElemnt.value;
+  if (activeElement) {
+    var start = activeElement.selectionStart;
+    var end = activeElement.selectionEnd;
+    var text = activeElement.value;
     if (text) {
       beforeSearchText = text.substring(0, start);
       beforeSearchText = beforeSearchText.substring(0, beforeSearchText.length - 1);
@@ -222,7 +231,7 @@ function convertString(v) {
             newemoji = newemoji.substring(firstIndex,secondIndex);
             slackEmoji = emojiMap.get(newemoji);
             if (slackEmoji) {
-              imageString = '<img src="'+slackEmoji+'" height="'+localStorage.getItem('fontSize')+'">';
+              imageString = '<img src="'+slackEmoji+'" height="'+localStorage.getItem('fontSize')+'" title="' + newemoji + '">';
               v = v.replace(':'+newemoji+':', imageString);
             }
             emoji = emoji.replace(':', '');
@@ -235,9 +244,9 @@ function convertString(v) {
 }
 
 function addTextToTextarea(el, newText) {
-  var start = activeElemnt.selectionStart;
-  var end = activeElemnt.selectionEnd;
-  var text = activeElemnt.value;
+  var start = activeElement.selectionStart;
+  var end = activeElement.selectionEnd;
+  var text = activeElement.value;
   beforeSearchText = text.substring(0, start);
   beforeSearchText = beforeSearchText.substring(0, beforeSearchText.length - 1);
   beforeSearchText = beforeSearchText + newText;
@@ -250,10 +259,10 @@ function hideOnClickOutside() {
 }
 
 function outsideClickListener(event) {
-  var usersTextArea = document.getElementById(activeElemnt.id);
+  var usersTextArea = document.getElementById(activeElement.id);
   if(event && event.target && event.srcElement && event.srcElement.childElementCount === 0) {
     if (event.target.currentSrc && event.target.id) {
-      var imageString = '<img id="' + event.target.id + '" src="' + event.target.currentSrc + '" height="' + localStorage.getItem('fontSize') + '">';
+      var imageString = '<img id="' + event.target.id + '" title="' + event.target.id + '" src="' + event.target.currentSrc + '" height="' + localStorage.getItem('fontSize') + '">';
       addTextToTextarea(usersTextArea, imageString);
     }
   } else {
@@ -267,19 +276,21 @@ function removeClickListener() {
 
 
 function closeDialog() {
+  clearKeyPressed();
   let dialog = document.querySelector("dialog");
   if (dialog) {
     dialog.close();
     dialogIsOpen = false;
     hideDialog = false;
   }
-
-  let usersTextArea = document.getElementById(activeElemnt.id);
-  if (usersTextArea) {
-    document.activeElement = usersTextArea;
-    usersTextArea.focus();
-    if (textlengthAdded > 0) {
-      document.activeElement.selectionEnd = beforeSearchText.length;
+  if (activeElement) {
+    let usersTextArea = document.getElementById(activeElement.id);
+    if (usersTextArea) {
+      document.activeElement = usersTextArea;
+      usersTextArea.focus();
+      if (textlengthAdded > 0) {
+        document.activeElement.selectionEnd = beforeSearchText.length;
+      }
     }
   }
 
@@ -291,8 +302,13 @@ function keyDown(e) {
   pressedKeys.push(e);
 }
 
+function clearKeyPressed(e) {
+  pressedKeys = [];
+}
+
 
 getCookie();
 getFontSize();
 getUseSearch();
+getShortcut();
 

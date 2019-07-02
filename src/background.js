@@ -43,6 +43,10 @@ chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
     sendResponse({useSearch: localStorage.getItem('useSearch') || true});
   }
 
+  if (request.name === 'getShortcut') {
+    sendResponse({shortcut: localStorage.getItem('shortcut') || ':'})
+  }
+
   if(request.name === 'CLEAR_STATE'){
     chrome.storage.sync.remove('slackToken');
     localStorage.removeItem('slackToken');
@@ -57,6 +61,11 @@ chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
 
   if(request.setUseSearch) {
     localStorage.setItem('useSearch', request.setUseSearch);
+    sendResponse({ok: true});
+  }
+
+  if (request.setShortcut) {
+    localStorage.setItem('shortcut', request.setShortcut);
     sendResponse({ok: true});
   }
 
