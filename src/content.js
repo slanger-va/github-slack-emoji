@@ -2,16 +2,16 @@ document.addEventListener("keyup", keyDownTextField, false);
 document.addEventListener("keydown", keyDown, false);
 let fontSize = localStorage.getItem('fontSize');
 let useSearch = localStorage.getItem('useSearch');
-let shortcut = localStorage.getItem('shortcut');
+let shortcut = parseInt(localStorage.getItem('shortcut') || '58');
 
 let seachBox = '<div style="width: 220px; height: 160px; overflow: scroll" id="infinite-list"></div>';
 seachBox += '<input style="width: 220px;" type="text" id="emoji">';
 document.body.innerHTML += '<dialog>' + seachBox + '</dialog>';
 
-let activeElemnt;
+let activeElement;
 let beforeSearchText;
 let afterSearchText;
-let activeElemntValue;
+let activeElementValue;
 let dialogIsOpen = false;
 let hideDialog = false;
 let textlengthAdded = 0;
@@ -60,10 +60,10 @@ function isCharacterKeyPress(evt) {
 }
 
 function openSearch() {
-  document.activeElement.value = activeElemntValue;
-  activeElemnt.value = activeElemntValue;
+  document.activeElement.value = activeElementValue;
+  activeElement.value = activeElementValue;
 
-  var usersTextArea = document.getElementById(activeElemnt.id);
+  var usersTextArea = document.getElementById(activeElement.id);
   if (usersTextArea) {
     var gitHubEmojiDialog = document.getElementById(usersTextArea.getAttribute('aria-owns'));
     if (gitHubEmojiDialog) {
@@ -119,16 +119,16 @@ function searched(e) {
 }
 
 function keyDownTextField(e) {
-  if((e.key === shortcut || pressedKeys.find(k => k.which === 186) && pressedKeys.find(k => k.which === 16) || pressedKeys.find(k => k.key === shortcut)) && useSearch !== 'false') {
+  if((e.key.charCodeAt(0) === shortcut || pressedKeys.find(k => k.key.charCodeAt(0) === shortcut)) && useSearch !== 'false') {
     var usersTextArea;
     if (!dialogIsOpen) {
-      activeElemnt = document.activeElement;
+      activeElement = document.activeElement;
       setBeforeAndAfterSearch();
-      if (!activeElemnt) { return }
-      var getElemt = document.getElementById(activeElemnt.id);
+      if (!activeElement) { return }
+      var getElemt = document.getElementById(activeElement.id);
       if (!getElemt || getElemt.id === 'issue_title') { return }
-      activeElemntValue = document.activeElement.value;
-      activeElemnt.innerHTML = activeElemntValue;
+      activeElementValue = document.activeElement.value;
+      activeElement.innerHTML = activeElementValue;
       openSearch();
     }
   }
@@ -140,13 +140,13 @@ function keyDownTextField(e) {
   }
 
   if (useSearch === "false") {
-    activeElemntValue = document.activeElement.value;
-    activeElemnt = document.activeElement;
+    activeElementValue = document.activeElement.value;
+    activeElement = document.activeElement;
     setBeforeAndAfterSearch()
   }
 
-  if (activeElemnt && activeElemnt.id !== 'issue_title') {
-    usersTextArea = document.getElementById(activeElemnt.id);
+  if (activeElement && activeElement.id !== 'issue_title') {
+    usersTextArea = document.getElementById(activeElement.id);
     if (usersTextArea) {
       if (usersTextArea.value.match(':.*:')) {
         let oldlength = usersTextArea.value.length;
@@ -167,10 +167,10 @@ function keyDownTextField(e) {
 
 
 function setBeforeAndAfterSearch() {
-  if (activeElemnt) {
-    var start = activeElemnt.selectionStart;
-    var end = activeElemnt.selectionEnd;
-    var text = activeElemnt.value;
+  if (activeElement) {
+    var start = activeElement.selectionStart;
+    var end = activeElement.selectionEnd;
+    var text = activeElement.value;
     if (text) {
       beforeSearchText = text.substring(0, start);
       beforeSearchText = beforeSearchText.substring(0, beforeSearchText.length - 1);
@@ -244,9 +244,9 @@ function convertString(v) {
 }
 
 function addTextToTextarea(el, newText) {
-  var start = activeElemnt.selectionStart;
-  var end = activeElemnt.selectionEnd;
-  var text = activeElemnt.value;
+  var start = activeElement.selectionStart;
+  var end = activeElement.selectionEnd;
+  var text = activeElement.value;
   beforeSearchText = text.substring(0, start);
   beforeSearchText = beforeSearchText.substring(0, beforeSearchText.length - 1);
   beforeSearchText = beforeSearchText + newText;
@@ -259,7 +259,7 @@ function hideOnClickOutside() {
 }
 
 function outsideClickListener(event) {
-  var usersTextArea = document.getElementById(activeElemnt.id);
+  var usersTextArea = document.getElementById(activeElement.id);
   if(event && event.target && event.srcElement && event.srcElement.childElementCount === 0) {
     if (event.target.currentSrc && event.target.id) {
       var imageString = '<img id="' + event.target.id + '" title="' + event.target.id + '" src="' + event.target.currentSrc + '" height="' + localStorage.getItem('fontSize') + '">';
@@ -283,13 +283,14 @@ function closeDialog() {
     dialogIsOpen = false;
     hideDialog = false;
   }
-
-  let usersTextArea = document.getElementById(activeElemnt.id);
-  if (usersTextArea) {
-    document.activeElement = usersTextArea;
-    usersTextArea.focus();
-    if (textlengthAdded > 0) {
-      document.activeElement.selectionEnd = beforeSearchText.length;
+  if (activeElement) {
+    let usersTextArea = document.getElementById(activeElement.id);
+    if (usersTextArea) {
+      document.activeElement = usersTextArea;
+      usersTextArea.focus();
+      if (textlengthAdded > 0) {
+        document.activeElement.selectionEnd = beforeSearchText.length;
+      }
     }
   }
 
