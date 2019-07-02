@@ -253,7 +253,7 @@ function outsideClickListener(event) {
   var usersTextArea = document.getElementById(activeElemnt.id);
   if(event && event.target && event.srcElement && event.srcElement.childElementCount === 0) {
     if (event.target.currentSrc && event.target.id) {
-      var imageString = '<img id="' + event.target.id + '" src="' + event.target.currentSrc + '" height="' + localStorage.getItem('fontSize') + '">';
+      var imageString = '<img id="' + event.target.id + '" title="' + event.target.id + '" src="' + event.target.currentSrc + '" height="' + localStorage.getItem('fontSize') + '">';
       addTextToTextarea(usersTextArea, imageString);
     }
   } else {
