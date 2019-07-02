@@ -1,6 +1,6 @@
 # SlackExtension
 
-Use Custom slack emojis in github
+Use Custom Slack Emoji's in Github
 
 ## How to Use
 
@@ -10,6 +10,11 @@ Once added to chrome click the app and login to your slack workspace.
  Next you will need to navigate to [Github](https://github.com) and type in the shortcut key (you can set the shortcut key [here](chrome-extension://iaigeepmkbaoeebbobooiplapajefmjd/options.html), default is set to `:`) in order to bring up the emoji search.
  
  Now simply type in the name of the emoji you are looking for and select it. 
+ 
+ 
+ To use outside of github, click on the extension logo in chrome and search for an emoji. 
+ Once you have found the emoji you are looking for, simply click on it to copy the `img` element to your clipboard. 
+ 
 
 ## Development
 
