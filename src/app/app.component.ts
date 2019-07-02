@@ -1,10 +1,16 @@
 import {Component, ElementRef} from '@angular/core';
-import {AppService, EmojieMap} from "./app-service";
-import {Observable} from "rxjs";
-import {FormControl} from "@angular/forms";
-import {first} from "rxjs/operators";
-import * as Fuse from "fuse.js";
-import {MatSnackBar} from "@angular/material";
+import {AppService, EmojieMap} from './app-service';
+import {Observable} from 'rxjs';
+import {FormControl} from '@angular/forms';
+import {first} from 'rxjs/operators';
+import * as Fuse from 'fuse.js';
+import {MatSnackBar} from '@angular/material';
+
+export interface Emoji {
+  name: string
+  src: string
+
+}
 
 @Component({
   selector: 'app-root',
@@ -14,7 +20,7 @@ import {MatSnackBar} from "@angular/material";
 export class AppComponent {
   fontSize: number;
   slackEmojies$: Observable<Map<string, string>>;
-  shownEmoji: string[];
+  shownEmoji: Emoji[] = [];
   slackToken: string;
   emojiMap: Map<string, string>;
   emojiControl: FormControl = new FormControl();
@@ -36,7 +42,7 @@ export class AppComponent {
     this.slackToken = appService.slackToken;
     this.slackEmojies$.pipe(first()).subscribe(emojiMap => {
       this.emojiMap = emojiMap;
-      this.keys = Array.from(emojiMap.keys() );
+      this.keys = Array.from(emojiMap.keys());
       var options = {
         shouldSort: true,
         threshold: 0.6,
@@ -52,11 +58,17 @@ export class AppComponent {
 
 
   search(value: string): void {
+    if (!value) {
+      value = 'a';
+    }
     let results = this.fuse.search(value);
     let emojis = results.slice(0, 16).map(res => {
-      return this.emojiMap.get(this.keys[res])
+      return {
+        name: this.keys[res],
+        src: this.emojiMap.get(this.keys[res])
+      } as Emoji
     });
-    this.shownEmoji =  emojis;
+    this.shownEmoji = emojis;
   }
 
 
@@ -64,9 +76,20 @@ export class AppComponent {
     this.slackToken = this.appService.login();
   }
 
-  copyToClipBoard(value) {
-    let text = '<img class="{{this.fontSize}}" src="{{value}}">'
-    // this.copyTextToClipboard(text);
-    console.log(text);
+  copyToClipBoard(value: Emoji) {
+    let text = '<img height="' + this.fontSize + '" src="' + value.src + '" title="' + value.name + '">';
+    this.copy(text);
+  }
+
+  copy(item: string): void {
+    document.addEventListener('copy', (e: ClipboardEvent) => {
+      e.clipboardData.setData('text/plain', (item));
+      e.preventDefault();
+      document.removeEventListener('copy', null);
+    });
+    document.execCommand('copy');
+    this.snackBar.open('Copied to Clipboard', null, {
+      duration: 1000,
+    });
   }
 }

@@ -2,16 +2,17 @@
   <h1>
     Welcome to Slack-moji!
   </h1>
+  <div class="help-text">Click an Emoji to copy to clipboard</div>
   <ng-container *ngIf="slackToken; else NotLoggedIn">
       <ng-container *ngIf="slackEmojies$ | async as slackEmojies">
-          <input matInput placeholder="Search by emoji" (input)="search($event.target.value)" [formControl]="emojiControl">
+          <input placeholder="Search by emoji" (input)="search($event.target.value)" [formControl]="emojiControl">
           <br>
           <br>
         <ng-container *ngIf="shownEmoji.length > 0">
           <ng-container *ngFor="let emoji of shownEmoji">
-            <button onclick="copyToClipBoard(emoji)">
-              <img class="imageSize" src="{{emoji}}">
-            </button>
+            <!--<a role="button">-->
+              <img class="imageSize" src="{{emoji.src}}" title="{{emoji.name}}" (click)="copyToClipBoard(emoji)"/>
+            <!--</a>-->
           </ng-container>
         </ng-container>
     </ng-container>

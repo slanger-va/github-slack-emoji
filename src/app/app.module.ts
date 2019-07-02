@@ -3,10 +3,11 @@ import { NgModule } from '@angular/core';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import {MatFormFieldModule, MatInputModule, MatSnackBarModule} from "@angular/material";
+import {MatFormFieldModule, MatSnackBarModule} from "@angular/material";
 import {AppService} from "./app-service";
 import {HttpClientModule} from "@angular/common/http";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 
 @NgModule({
   declarations: [
@@ -14,13 +15,13 @@ import {FormsModule, ReactiveFormsModule} from "@angular/forms";
   ],
   imports: [
     BrowserModule,
+    BrowserAnimationsModule,
     MatSnackBarModule,
     AppRoutingModule,
-    MatInputModule,
     HttpClientModule,
     FormsModule,
     MatFormFieldModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
   ],
   providers: [AppService],
   bootstrap: [AppComponent]

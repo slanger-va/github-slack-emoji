@@ -1,7 +1,11 @@
-//$imageSize: undefined;
 
 .imageSize {
   padding-right: 16px;
   width: var(--fontsize);
   height: var(--fontsize);
+}
+
+.help-text {
+  margin-bottom: 16px;
+  color: grey;
 }
