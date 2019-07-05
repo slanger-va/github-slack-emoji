@@ -18,7 +18,28 @@ Once added to chrome click the app and login to your slack workspace.
 
 ## Development
 
-First you need a `creds.js` file to store the `clientId`, `clientSecret`, `scope`, `redirectUri`, and `fontSize` to localStorage
+First you need a `creds.js` file in `src` to store the `clientId`, 
+`clientSecret`, `scope`, `redirectUri`, and `fontSize` to localStorage
+
+The file contents will need to contain the following values:
+```
+var clientId = '2359480181.511002970434';
+var clientSecret = '<ASK_SHAY>';
+var redirectUri = 'https://'+chrome.runtime.id+'.chromiumapp.org';
+var scope = 'emoji:read';
+var fontSize = 28;
+var useSearch = true;
+var shortcut = '58';
+
+localStorage.setItem('fontSize', fontSize);
+localStorage.setItem('clientId', clientId);
+localStorage.setItem('clientSecret', clientSecret);
+localStorage.setItem('redirectUri', redirectUri);
+localStorage.setItem('scope', scope);
+localStorage.setItem('useSearch', useSearch);
+localStorage.setItem('shortcut', shortcut);
+``` 
+
 
 Next run `ng build --watch` to build the extension
 
