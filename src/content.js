@@ -1,8 +1,10 @@
+const COLON_KEY = '58';
+
 document.addEventListener("keyup", keyDownTextField, false);
 document.addEventListener("keydown", keyDown, false);
 let fontSize = localStorage.getItem('fontSize');
 let useSearch = localStorage.getItem('useSearch');
-let shortcut = parseInt(localStorage.getItem('shortcut') || '58');
+let shortcut = parseInt(localStorage.getItem('shortcut') || COLON_KEY);
 
 let seachBox = '<div style="width: 220px; height: 160px; overflow: scroll" id="infinite-list"></div>';
 seachBox += '<input style="width: 220px;" type="text" id="emoji">';
@@ -118,11 +120,15 @@ function searched(e) {
   }
 }
 
+export function shouldOpenDialog(element) {
+  return false;
+}
+
 function keyDownTextField(e) {
   if((e.key.charCodeAt(0) === shortcut || pressedKeys.find(k => k.key.charCodeAt(0) === shortcut)) && useSearch !== 'false') {
     var usersTextArea;
-    if (!dialogIsOpen) {
-      activeElement = document.activeElement;
+    activeElement = document.activeElement;
+    if (!dialogIsOpen && shouldOpenDialog(activeElement)) {
       setBeforeAndAfterSearch();
       if (!activeElement) { return }
       var getElemt = document.getElementById(activeElement.id);
@@ -160,6 +166,7 @@ function keyDownTextField(e) {
   }
 
   if(e.key === 'Escape') {
+    // TODO: Prevent closing the "Review Changes" tooltip
     closeDialog();
   }
   pressedKeys = pressedKeys.filter(k => k.key !== e.key);
